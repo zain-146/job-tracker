@@ -26,7 +26,7 @@
             <li><a href="#/saved" class="nav-link" data-route="saved">Saved</a></li>
             <li><a href="#/digest" class="nav-link" data-route="digest">Digest</a></li>
             <li><a href="#/settings" class="nav-link" data-route="settings">Settings</a></li>
-            <li><a href="#/proof" class="nav-link" data-route="proof">Proof</a></li>
+            <li><a href="#/jt/proof" class="nav-link" data-route="jt-proof">Proof</a></li>
             <li><a href="#/jt/07-test" class="nav-link" data-route="jt-07-test">Test Checklist</a></li>
             <li><a href="#/jt/08-ship" class="nav-link" data-route="jt-08-ship">Ship</a></li>
         </nav>
@@ -59,6 +59,15 @@
                             placeholder="Search title or company..." oninput="updateUI()">
                     </div>
                     <div class="filter-group">
+                        <select id="filter-status" class="form-control" onchange="updateUI()">
+                            <option value="all">Any Status</option>
+                            <option value="Not Applied">Not Applied</option>
+                            <option value="Applied">Applied</option>
+                            <option value="Rejected">Rejected</option>
+                            <option value="Selected">Selected</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
                         <select id="filter-location" class="form-control" onchange="updateUI()">
                             <option value="all">All Locations</option>
                             <option value="remote">Remote</option>
@@ -71,23 +80,6 @@
                         </select>
                     </div>
                     <div class="filter-group">
-                        <select id="filter-mode" class="form-control" onchange="updateUI()">
-                            <option value="all">Any Mode</option>
-                            <option value="Remote">Remote</option>
-                            <option value="Hybrid">Hybrid</option>
-                            <option value="Onsite">Onsite</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
-                        <select id="filter-status" class="form-control" onchange="updateUI()">
-                            <option value="all">Any Status</option>
-                            <option value="Not Applied">Not Applied</option>
-                            <option value="Applied">Applied</option>
-                            <option value="Rejected">Rejected</option>
-                            <option value="Selected">Selected</option>
-                        </select>
-                    </div>
-                    <div class="filter-group">
                         <select id="filter-experience" class="form-control" onchange="updateUI()">
                             <option value="all">Any Experience</option>
                             <option value="Fresher">Fresher</option>
@@ -97,8 +89,16 @@
                         </select>
                     </div>
                     <div class="filter-group">
+                        <select id="filter-mode" class="form-control" onchange="updateUI()">
+                            <option value="all">Any Mode</option>
+                            <option value="Remote">Remote</option>
+                            <option value="Hybrid">Hybrid</option>
+                            <option value="Onsite">Onsite</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
                         <select id="filter-source" class="form-control" onchange="updateUI()">
-                            <option value="all">All Sources</option>
+                            <option value="all">Any Source</option>
                             <option value="LinkedIn">LinkedIn</option>
                             <option value="Naukri">Naukri</option>
                             <option value="Indeed">Indeed</option>
@@ -106,34 +106,86 @@
                     </div>
                     <div class="filter-group">
                         <select id="filter-sort" class="form-control" onchange="updateUI()">
-                            <option value="latest">Latest First</option>
-                            <option value="oldest">Oldest First</option>
-                            <option value="score">Match Score</option>
-                            <option value="salary">Salary (High to Low)</option>
+                            <option value="latest">Sort: Newest First</option>
+                            <option value="score">Sort: Match Score</option>
+                            <option value="salary">Sort: Highest Pay</option>
                         </select>
+                    </div>
+                    <div class="filter-group" style="display: flex; align-items: center; gap: 8px;">
+                        <label class="text-small" style="font-weight: 600; white-space: nowrap;">Precision Match</label>
+                        <div class="switch">
+                            <input type="checkbox" id="toggle-matches" onchange="updateUI()">
+                        </div>
                     </div>
                 </div>
 
-                <div id="job-list" class="job-grid">
-                    <!-- Dynamic rendering here -->
+                <div id="pref-banner-container"></div>
+
+                <div class="job-grid" id="job-list">
+                    <!-- Dynamic Grid Content -->
                 </div>
+
+                <div id="toast-container"></div>
             </section>
 
             <!-- SAVED PAGE -->
             <section id="page-saved" class="page-section">
-                <div class="empty-state">
-                    <i class="fas fa-bookmark"></i>
-                    <h2>Save for later.</h2>
-                    <p>Jobs you mark as saved will appear here for careful review.</p>
-                </div>
+                <!-- Initial content, will be overwritten by updateUI() if active -->
+                <div class="job-grid"></div>
             </section>
 
             <!-- DIGEST PAGE -->
             <section id="page-digest" class="page-section">
-                <div class="empty-state">
-                    <i class="fas fa-envelope-open-text"></i>
-                    <h2>Your Daily Digest.</h2>
-                    <p>Every morning at 9AM, we'll curate the best matches for you here.</p>
+                <div class="context-header">
+                    <h1>Daily Digest</h1>
+                    <p class="subtext">Your curated morning briefing of high-relevance roles.</p>
+                </div>
+
+                <div id="digest-blocked" style="display: none;">
+                    <div class="empty-state">
+                        <i class="fas fa-lock"></i>
+                        <h2>Preferences Protected.</h2>
+                        <p>Set your job preferences to activate the intelligent digest engine.</p>
+                        <a href="#/settings" class="btn btn-primary" style="margin-top: 16px;">Set Preferences</a>
+                    </div>
+                </div>
+
+                <div id="digest-ready" style="display: none;">
+                    <div style="display: grid; grid-template-columns: 1fr 300px; gap: 24px; align-items: start;">
+                        <div>
+                            <div class="digest-actions">
+                                <button class="btn btn-primary" onclick="generateDigest()">
+                                    <i class="fas fa-sync-alt"></i> Generate Today's 9AM Digest (Simulated)
+                                </button>
+                                <button class="btn" id="copy-digest-btn" onclick="copyDigest()"
+                                    style="border: 1px solid var(--color-border); display: none;">
+                                    <i class="far fa-copy"></i> Copy
+                                </button>
+                                <button class="btn" id="email-digest-btn" onclick="emailDigest()"
+                                    style="border: 1px solid var(--color-border); display: none;">
+                                    <i class="far fa-envelope"></i> Email
+                                </button>
+                            </div>
+
+                            <div id="digest-container">
+                                <div class="empty-state">
+                                    <i class="fas fa-coffee"></i>
+                                    <h2>Ready for your briefing?</h2>
+                                    <p>Curate today's top matches into an email-style layout.</p>
+                                </div>
+                            </div>
+                            <div class="demo-note">Demo Mode: Daily 9AM trigger simulated manually.</div>
+                        </div>
+
+                        <div class="card" style="margin: 0;">
+                            <h3 style="margin-bottom: 16px; font-family: var(--font-display);">Recent Status Updates
+                            </h3>
+                            <div id="recent-status-updates">
+                                <p class="text-small" style="color: var(--color-text-muted)">No recent activity tracked.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </section>
 
@@ -144,17 +196,11 @@
                     <div
                         style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
                         <div>
-                            <h1>Recommended for You</h1>
-                            <p class="subtext">Intelligent matching based on your unique profile.</p>
-                        </div>
-                        <div class="toggle-wrap">
-                            <span>Show only above threshold</span>
-                            <input type="checkbox" id="toggle-matches" onchange="updateUI()">
+                            <h1>Preferences & Matching</h1>
+                            <p class="subtext">Define your ideal career path to calibrate the discovery engine.</p>
                         </div>
                     </div>
                 </div>
-
-                <div id="pref-banner-container"></div>
 
                 <div class="card" style="margin-bottom: var(--space-4);">
                     <div class="settings-grid">
@@ -225,16 +271,26 @@
             </section>
 
             <!-- PROOF PAGE -->
-            <section id="page-proof" class="page-section">
+            <section id="page-jt-proof" class="page-section">
                 <div class="context-header">
                     <h1>Proof of Work</h1>
-                    <p class="subtext">A collection of artifacts demonstrating system integrity.</p>
+                    <p class="subtext">System integrity report and project documentation.</p>
                 </div>
-                <div class="proof-container">
-                    <i class="fas fa-file-shield"
-                        style="font-size: 32px; color: var(--color-accent); margin-bottom: 16px;"></i>
-                    <p>Artifact collection area. This section will store verification data.</p>
+                <div id="proof-root"></div>
+            </section>
+
+            <!-- TEST CHECKLIST PAGE -->
+            <section id="page-jt-07-test" class="page-section">
+                <div class="context-header">
+                    <h1>System Quality Assurance</h1>
+                    <p class="subtext">Verify all core functionalities before final deployment.</p>
                 </div>
+                <div id="checklist-root"></div>
+            </section>
+
+            <!-- SHIP PAGE -->
+            <section id="page-jt-08-ship" class="page-section">
+                <div id="ship-root"></div>
             </section>
 
         </main>
@@ -320,10 +376,20 @@
             savedJobIds: JSON.parse(localStorage.getItem('savedJobIds')) || [],
             jobStatus: JSON.parse(localStorage.getItem('jobTrackerStatus')) || {},
             statusHistory: JSON.parse(localStorage.getItem('jobTrackerStatusHistory')) || [],
-            testChecks: JSON.parse(localStorage.getItem('jobTrackerTestChecks')) || Array(10).fill(false)
+            testChecks: JSON.parse(localStorage.getItem('jobTrackerTestChecks')) || Array(10).fill(false),
+            artifacts: JSON.parse(localStorage.getItem('jobTrackerArtifacts')) || { lovable: '', github: '', live: '' }
         };
 
         const getPassCount = () => state.testChecks.filter(c => c).length;
+        const validateUrl = (url) => /^(https?:\/\/)?([\da-z\.-]+)\.([a-z\.]{2,6})([\/\w \.-]*)*\/?$/.test(url);
+
+        const getProjectStatus = () => {
+            const hasLinks = state.artifacts.lovable && state.artifacts.github && state.artifacts.live;
+            const testsPassed = getPassCount() === 10;
+            if (hasLinks && testsPassed) return 'Shipped';
+            if (hasLinks || testsPassed || state.preferences) return 'In Progress';
+            return 'Not Started';
+        };
 
         // --- MATCH SCORING ENGINE ---
         function calculateMatchScore(job, prefs) {
@@ -921,8 +987,116 @@
             if (activeRoute === 'jt-08-ship') {
                 renderShipPage();
             }
+            if (activeRoute === 'jt-proof') {
+                renderProofPage();
+            }
 
             updateUI();
+        }
+
+        // --- PROOF & SUBMISSION ENGINE ---
+        function renderProofPage() {
+            const root = document.getElementById('proof-root');
+            if (!root) return;
+
+            const status = getProjectStatus();
+            const passCount = getPassCount();
+
+            const steps = [
+                { name: "01. Home Landing", done: true },
+                { name: "02. Dashboard & Filters", done: true },
+                { name: "03. Saved Job Repository", done: true },
+                { name: "04. Daily Digest Engine", done: true },
+                { name: "05. User Preferences", done: !!state.preferences },
+                { name: "06. Status Tracking", done: Object.keys(state.jobStatus).length > 0 },
+                { name: "07. Built-In Test Checklist", done: passCount === 10 },
+                { name: "08. Final Ship Verification", done: status === 'Shipped' }
+            ];
+
+            root.innerHTML = `
+                <div class="checklist-container">
+                    <div class="card" style="margin-bottom: 24px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+                            <h2 style="margin: 0;">Project 1: Job Notification Tracker</h2>
+                            <span class="project-status status-${status.toLowerCase().replace(' ', '-')}">
+                                <i class="fas ${status === 'Shipped' ? 'fa-check-circle' : 'fa-circle-notch fa-spin'}"></i>
+                                ${status}
+                            </span>
+                        </div>
+
+                        <h3 style="margin-bottom: 16px;">A) Step Completion Summary</h3>
+                        <div class="step-summary-list">
+                            ${steps.map(s => `
+                                <div class="step-item ${s.done ? 'completed' : ''}">
+                                    <span style="font-size: 14px; font-weight: 500;">${s.name}</span>
+                                    <span class="step-badge ${s.done ? 'done' : 'pending'}">${s.done ? 'Completed' : 'Pending'}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <div class="card">
+                        <h3 style="margin-bottom: 16px;">B) Artifact Collection</h3>
+                        <div class="artifact-group">
+                            <label class="input-label">Lovable Project Link</label>
+                            <input type="text" value="${state.artifacts.lovable}" 
+                                class="artifact-input ${state.artifacts.lovable && !validateUrl(state.artifacts.lovable) ? 'invalid' : ''}" 
+                                placeholder="https://lovable.dev/projects/..." 
+                                oninput="updateArtifact('lovable', this.value)">
+                            <div class="form-help">Link to your Lovable project workspace.</div>
+                        </div>
+
+                        <div class="artifact-group">
+                            <label class="input-label">GitHub Repository Link</label>
+                            <input type="text" value="${state.artifacts.github}" 
+                                class="artifact-input ${state.artifacts.github && !validateUrl(state.artifacts.github) ? 'invalid' : ''}" 
+                                placeholder="https://github.com/..." 
+                                oninput="updateArtifact('github', this.value)">
+                            <div class="form-help">Link to the source code repository.</div>
+                        </div>
+
+                        <div class="artifact-group">
+                            <label class="input-label">Live Deployment URL</label>
+                            <input type="text" value="${state.artifacts.live}" 
+                                class="artifact-input ${state.artifacts.live && !validateUrl(state.artifacts.live) ? 'invalid' : ''}" 
+                                placeholder="https://job-tracker-demo.vercel.app" 
+                                oninput="updateArtifact('live', this.value)">
+                            <div class="form-help">Publicly accessible production URL.</div>
+                        </div>
+
+                        <div style="margin-top: 32px; border-top: 1px solid var(--color-border); padding-top: 24px;">
+                            <button class="btn btn-primary" onclick="copySubmission()">
+                                <i class="far fa-copy"></i> Copy Final Submission
+                            </button>
+                        </div>
+
+                        <div id="export-container" style="display: none;">
+                            <div class="export-box" id="submission-text"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateArtifact(key, value) {
+            state.artifacts[key] = value.trim();
+            localStorage.setItem('jobTrackerArtifacts', JSON.stringify(state.artifacts));
+
+            // Re-render only inputs/status to avoid losing focus if complicated, but since we are simple:
+            renderProofPage();
+        }
+
+        function copySubmission() {
+            const art = state.artifacts;
+            const text = `Job Notification Tracker — Final Submission\n\nLovable Project:\n${art.lovable || '[Not Provided]'}\n\nGitHub Repository:\n${art.github || '[Not Provided]'}\n\nLive Deployment:\n${art.live || '[Not Provided]'}\n\nCore Features:\n- Intelligent match scoring\n- Daily digest simulation\n- Status tracking\n- Test checklist enforced`;
+
+            navigator.clipboard.writeText(text).then(() => {
+                showToast("Submission copied to clipboard.");
+                const container = document.getElementById('export-container');
+                const box = document.getElementById('submission-text');
+                box.innerText = text;
+                container.style.display = 'block';
+            });
         }
 
         // --- CHECKLIST ENGINE ---
@@ -999,34 +1173,40 @@
             if (!root) return;
 
             const passCount = getPassCount();
+            const status = getProjectStatus();
             const allPassed = passCount === 10;
+            const hasLinks = state.artifacts.lovable && state.artifacts.github && state.artifacts.live;
 
-            if (!allPassed) {
+            if (status !== 'Shipped') {
                 root.innerHTML = `
                     <div class="lock-screen">
                         <i class="fas fa-lock lock-icon"></i>
-                        <h1>Resource Locked</h1>
+                        <h1>Shipment Locked</h1>
                         <p class="subtext" style="max-width: 500px; margin: 0 auto 24px;">
-                            You must verify all 10 system integrity checks before you can finalize and ship the application.
+                            Project 1 is currently <b>${status}</b>. To unlock shipment, you must complete all 10 integrity tests and provide all 3 required project artifacts.
                         </p>
-                        <a href="#/jt/07-test" class="btn btn-primary">Go to Checklist</a>
+                        <div style="display: flex; justify-content: center; gap: 16px;">
+                            <a href="#/jt/07-test" class="btn">Checklist (${passCount}/10)</a>
+                            <a href="#/jt/proof" class="btn btn-primary">Provide Links</a>
+                        </div>
                     </div>
                 `;
             } else {
                 root.innerHTML = `
                     <div class="ship-success-screen">
-                        <i class="fas fa-rocket success-icon"></i>
-                        <h1>Ready for Deployment</h1>
+                        <i class="fas fa-check-circle success-icon"></i>
+                        <h1 style="color: #2f855a;">Project 1 Shipped Successfully.</h1>
                         <p class="subtext" style="max-width: 600px; margin: 0 auto 32px;">
-                            All quality assurance protocols have passed. Your Job Notification Tracker is optimized and ready for production.
+                            Quality protocols verified. Artifacts documented. Deployment authorized.
                         </p>
                         <div class="card" style="text-align: left; max-width: 500px; margin: 0 auto;">
-                            <h3 style="margin-bottom: 12px;">Shipment Details</h3>
+                            <h3 style="margin-bottom: 12px;">Shipment Manifest</h3>
                             <div style="font-family: monospace; font-size: 13px;">
-                                <div>[VERSION] v1.4.0-premium</div>
-                                <div>[COMPLIANCE] 10/10 Tests OK</div>
-                                <div>[INTEGRITY] Verified by persistent state checks</div>
-                                <div style="margin-top: 12px; color: var(--color-accent);">[STATUS] SHIP_AUTH_GRANTED</div>
+                                <div>[PROJECT] Job Notification Tracker</div>
+                                <div>[VERSION] v1.5.0-final</div>
+                                <div>[QA_STATUS] 10/10 Passed</div>
+                                <div>[DOCUMENTATION] Verified</div>
+                                <div style="margin-top: 12px; color: var(--color-accent);">[HASH] ${Math.random().toString(36).substring(2, 10).toUpperCase()}</div>
                             </div>
                         </div>
                     </div>
