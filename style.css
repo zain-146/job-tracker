@@ -1,0 +1,236 @@
+/* KodNest Premium Build System - Core Styles */
+
+@import url('https://fonts.googleapis.com/css2?family=Merriweather:wght@400;700&family=Inter:wght@400;500;600&display=swap');
+
+:root {
+    /* STRICT COLOR SYSTEM (Max 4 colors) */
+    --color-bg: #F7F6F3;
+    --color-text-primary: #111111;
+    --color-accent: #8B0000;
+    --color-success: #4a6d50; /* Muted Green */
+    --color-warning: #c2934a; /* Muted Amber */
+    
+    /* System Support Colors */
+    --color-white: #ffffff;
+    --color-border: #e0e0e0;
+    --color-text-muted: #666666;
+
+    /* TYPOGRAPHY */
+    --font-serif: 'Merriweather', serif;
+    --font-sans: 'Inter', sans-serif;
+    --font-size-body: 17px;
+    --line-height-body: 1.7;
+
+    /* SPACING SYSTEM (8, 16, 24, 40, 64) */
+    --space-1: 8px;
+    --space-2: 16px;
+    --space-3: 24px;
+    --space-4: 40px;
+    --space-5: 64px;
+
+    /* LAYOUT */
+    --width-workspace: 70%;
+    --width-panel: 30%;
+    --max-width-text: 720px;
+    --radius: 2px; /* Intentional, sharp but subtle */
+    --transition: 180ms ease-in-out;
+}
+
+/* Global Reset & Base */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background-color: var(--color-bg);
+    color: var(--color-text-primary);
+    font-family: var(--font-sans);
+    line-height: var(--line-height-body);
+    font-size: var(--font-size-body);
+    -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+/* TYPOGRAPHY RULES */
+h1, h2, h3, h4 {
+    font-family: var(--font-serif);
+    font-weight: 700;
+    margin-bottom: var(--space-2);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+}
+
+h1 { font-size: 40px; }
+h2 { font-size: 32px; }
+h3 { font-size: 24px; }
+
+p {
+    margin-bottom: var(--space-2);
+    max-width: var(--max-width-text);
+    color: var(--color-text-primary);
+}
+
+.subtext {
+    font-size: 18px;
+    color: var(--color-text-muted);
+}
+
+/* GLOBAL LAYOUT STRUCTURE */
+.top-bar {
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 var(--space-3);
+    background: var(--color-white);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.layout-container {
+    display: flex;
+    flex: 1;
+}
+
+.workspace {
+    width: var(--width-workspace);
+    padding: var(--space-5);
+    border-right: 1px solid var(--color-border);
+}
+
+.secondary-panel {
+    width: var(--width-panel);
+    padding: var(--space-4);
+    background: var(--color-white);
+}
+
+/* COMPONENTS */
+
+/* Context Header */
+.context-header {
+    margin-bottom: var(--space-4);
+}
+
+/* Cards */
+.card {
+    background: var(--color-white);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: var(--space-3);
+    margin-bottom: var(--space-3);
+    transition: border-color var(--transition);
+}
+
+.card:hover {
+    border-color: #999;
+}
+
+/* Buttons */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 24px;
+    border-radius: var(--radius);
+    font-weight: 500;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 14px;
+    transition: all var(--transition);
+    border: 1px solid transparent;
+}
+
+.btn-primary {
+    background-color: var(--color-accent);
+    color: var(--color-white);
+}
+
+.btn-primary:hover {
+    opacity: 0.9;
+}
+
+.btn-secondary {
+    background: transparent;
+    border-color: var(--color-text-primary);
+    color: var(--color-text-primary);
+}
+
+.btn-secondary:hover {
+    background: rgba(0,0,0,0.05);
+}
+
+/* Inputs */
+.form-control {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-family: var(--font-sans);
+    font-size: 16px;
+    transition: border-color var(--transition);
+    background: var(--color-bg);
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--color-text-primary);
+}
+
+.input-label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: var(--space-1);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Status Badge */
+.status-badge {
+    padding: 4px 8px;
+    border: 1px solid var(--color-border);
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Proof Footer */
+.proof-footer {
+    height: 80px;
+    background: var(--color-white);
+    border-top: 2px solid var(--color-text-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    position: sticky;
+    bottom: 0;
+}
+
+.checklist-item {
+    display: flex;
+    align-items: center;
+    gap: var(--space-1);
+    font-size: 14px;
+}
+
+.checklist-item input {
+    accent-color: var(--color-accent);
+}
+
+/* UI Logic and States */
+.error-text {
+    color: var(--color-accent);
+    font-size: 14px;
+    margin-top: var(--space-1);
+}
+
+.empty-state {
+    text-align: center;
+    padding: var(--space-5);
+    color: var(--color-text-muted);
+}
