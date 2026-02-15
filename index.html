@@ -45,10 +45,64 @@
 
             <!-- DASHBOARD PAGE -->
             <section id="page-dashboard" class="page-section">
-                <div class="empty-state">
-                    <i class="fas fa-briefcase"></i>
-                    <h2>No jobs yet.</h2>
-                    <p>In the next step, you will load a realistic dataset.</p>
+                <div class="context-header">
+                    <h1>Opportunity Dashboard</h1>
+                    <p class="subtext">Real-time discoverability across the Indian tech ecosystem.</p>
+                </div>
+
+                <!-- FILTER BAR -->
+                <div class="filter-bar">
+                    <div class="filter-group">
+                        <input type="text" id="filter-keyword" class="form-control"
+                            placeholder="Search title or company..." oninput="updateUI()">
+                    </div>
+                    <div class="filter-group">
+                        <select id="filter-location" class="form-control" onchange="updateUI()">
+                            <option value="all">All Locations</option>
+                            <option value="remote">Remote</option>
+                            <option value="bangalore">Bangalore</option>
+                            <option value="mumbai">Mumbai</option>
+                            <option value="pune">Pune</option>
+                            <option value="hyderabad">Hyderabad</option>
+                            <option value="chennai">Chennai</option>
+                            <option value="gurgaon">Gurgaon/NCR</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="filter-mode" class="form-control" onchange="updateUI()">
+                            <option value="all">Any Mode</option>
+                            <option value="Remote">Remote</option>
+                            <option value="Hybrid">Hybrid</option>
+                            <option value="Onsite">Onsite</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="filter-experience" class="form-control" onchange="updateUI()">
+                            <option value="all">Any Experience</option>
+                            <option value="Fresher">Fresher</option>
+                            <option value="0-1">0-1 Year</option>
+                            <option value="1-3">1-3 Years</option>
+                            <option value="3-5">3-5 Years</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="filter-source" class="form-control" onchange="updateUI()">
+                            <option value="all">All Sources</option>
+                            <option value="LinkedIn">LinkedIn</option>
+                            <option value="Naukri">Naukri</option>
+                            <option value="Indeed">Indeed</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <select id="filter-sort" class="form-control" onchange="updateUI()">
+                            <option value="latest">Latest First</option>
+                            <option value="oldest">Oldest First</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div id="job-list" class="job-grid">
+                    <!-- Dynamic rendering here -->
                 </div>
             </section>
 
@@ -131,76 +185,124 @@
         </main>
     </div>
 
+    <!-- JOB DETAIL MODAL -->
+    <div id="job-modal" class="modal-overlay">
+        <div class="modal-content">
+            <span class="modal-close" onclick="closeModal()">&times;</span>
+            <div id="modal-body">
+                <!-- Dynamic Content -->
+            </div>
+        </div>
+    </div>
+
     <script>
-        // --- DATASET & STATE ---
+        // --- DATASET (60 Realistic Indian Tech Jobs) ---
         const ALL_JOBS = [
-            { id: 1, title: "Senior Frontend Developer", company: "TechScale", location: "San Francisco", mode: "remote", experience: "senior", keywords: ["frontend", "react", "javascript"] },
-            { id: 2, title: "UI Designer", company: "Creative Minds", location: "London", mode: "hybrid", experience: "mid", keywords: ["design", "ui", "ux", "figma"] },
-            { id: 3, title: "Backend Engineer", company: "DataFlow", location: "New York", mode: "onsite", experience: "mid", keywords: ["backend", "python", "django", "sql"] },
-            { id: 4, title: "Junior Web Developer", company: "StartUp Inc", location: "Remote", mode: "remote", experience: "junior", keywords: ["frontend", "html", "css", "javascript"] },
-            { id: 5, title: "Lead Software Architect", company: "Global Systems", location: "Austin", mode: "hybrid", experience: "lead", keywords: ["architecture", "system", "scale"] },
-            { id: 6, title: "Product Manager", company: "Visionary", location: "Seattle", mode: "remote", experience: "senior", keywords: ["product", "management", "strategy"] },
-            { id: 7, title: "Full Stack Developer", company: "WebWorks", location: "Berlin", mode: "hybrid", experience: "mid", keywords: ["frontend", "backend", "node", "react"] },
-            { id: 8, title: "DevOps Engineer", company: "CloudOps", location: "Remote", mode: "remote", experience: "senior", keywords: ["devops", "aws", "docker", "kubernetes"] },
-            { id: 9, title: "Mobile App Developer", company: "Apply", location: "Toronto", mode: "onsite", experience: "junior", keywords: ["mobile", "react native", "ios", "android"] },
-            { id: 10, title: "Data Scientist", company: "InsightCorp", location: "San Francisco", mode: "hybrid", experience: "senior", keywords: ["data", "ml", "python", "ai"] },
-            { id: 11, title: "QA Analyst", company: "CheckPoint", location: "Chicago", mode: "remote", experience: "mid", keywords: ["qa", "testing", "automation"] },
-            { id: 12, title: "Marketing Web Dev", company: "AdVantage", location: "Remote", mode: "remote", experience: "junior", keywords: ["frontend", "wordpress", "cms"] },
-            { id: 13, title: "Security Specialist", company: "SafeNet", location: "Remote", mode: "remote", experience: "senior", keywords: ["security", "cyber", "network"] },
-            { id: 14, title: "React Specialist", company: "FrontFlow", location: "Dublin", mode: "hybrid", experience: "mid", keywords: ["react", "frontend", "hooks"] },
-            { id: 15, title: "Platform Engineer", company: "Foundation", location: "Stockholm", mode: "remote", experience: "lead", keywords: ["platform", "infra", "scaling"] },
-            { id: 16, title: "Growth Engineer", company: "FastTrack", location: "Remote", mode: "remote", experience: "mid", keywords: ["frontend", "analytics", "growth"] },
-            { id: 17, title: "Python Developer", company: "PyLogic", location: "Paris", mode: "onsite", experience: "junior", keywords: ["python", "backend", "scripting"] },
-            { id: 18, title: "Head of Engineering", company: "Unicorn", location: "San Francisco", mode: "hybrid", experience: "lead", keywords: ["management", "leadership", "engineering"] },
-            { id: 19, title: "Database Admin", company: "DataCo", location: "Remote", mode: "remote", experience: "senior", keywords: ["database", "sql", "tuning"] },
-            { id: 20, title: "Accessibility Expert", company: "Inclusion", location: "Remote", mode: "remote", experience: "mid", keywords: ["a11y", "frontend", "html"] }
+            { id: 1, title: "SDE Intern", company: "Amazon", location: "Bangalore", mode: "Onsite", experience: "Fresher", skills: ["Java", "Data Structures", "AWS"], source: "LinkedIn", postedDaysAgo: 2, salaryRange: "₹40k/month Internship", description: "Join our core services team to help build high-scale distributed systems. You will work alongside senior engineers on production-ready features.", applyUrl: "https://amazon.jobs/intern" },
+            { id: 2, title: "Graduate Engineer Trainee", company: "TCS", location: "Mumbai", mode: "Hybrid", experience: "Fresher", skills: ["SQL", "C++", "Agile"], source: "Naukri", postedDaysAgo: 5, salaryRange: "3.5–5 LPA", description: "Standard induction program for recent graduates. You'll be rotated through various domains including BFSI and Retail technology units.", applyUrl: "https://tcs.com/careers" },
+            { id: 3, title: "Junior Backend Developer", company: "Razorpay", location: "Bangalore", mode: "Remote", experience: "0-1", skills: ["Node.js", "MongoDB", "Redis"], source: "LinkedIn", postedDaysAgo: 1, salaryRange: "12–18 LPA", description: "Work on our payments gateway orchestration layer. Great opportunity for someone who enjoys high-concurrency problems and fintech.", applyUrl: "https://razorpay.com/jobs" },
+            { id: 4, title: "Frontend Intern", company: "Swiggy", location: "Bangalore", mode: "Onsite", experience: "Fresher", skills: ["React", "CSS", "UI/UX"], source: "Indeed", postedDaysAgo: 0, salaryRange: "₹25k–₹35k/month Internship", description: "Collaborate with our design team to refine the delivery tracking interface. Expect high-impact work seen by millions of users daily.", applyUrl: "https://swiggy.com/careers" },
+            { id: 5, title: "React Developer", company: "Freshworks", location: "Chennai", mode: "Hybrid", experience: "1-3", skills: ["React", "Redux", "TypeScript"], source: "LinkedIn", postedDaysAgo: 3, salaryRange: "8–14 LPA", description: "Help us build the next generation of SaaS support tools. Focus on building reusable components and optimizing frontend performance.", applyUrl: "https://freshworks.com/apply" },
+            { id: 6, title: "Python Developer", company: "Zoho", location: "Chennai", mode: "Onsite", experience: "Fresher", skills: ["Python", "Django", "PostgreSQL"], source: "Naukri", postedDaysAgo: 7, salaryRange: "6–9 LPA", description: "Core backend development for our CRM tools. You will be responsible for creating robust APIs and maintaining database efficiency.", applyUrl: "https://zoho.com/careers" },
+            { id: 7, title: "QA Intern", company: "Flipkart", location: "Bangalore", mode: "Hybrid", experience: "Fresher", skills: ["Selenium", "Java", "Testing"], source: "LinkedIn", postedDaysAgo: 4, salaryRange: "₹20k/month Internship", description: "Part of the supply chain quality assurance team. You will write automated test scripts and perform exploratory testing on our logistics apps.", applyUrl: "https://flipkart.com/jobs" },
+            { id: 8, title: "Data Analyst Intern", company: "PhonePe", location: "Bangalore", mode: "Remote", experience: "Fresher", skills: ["Excel", "SQL", "Tableau"], source: "LinkedIn", postedDaysAgo: 2, salaryRange: "₹30k/month Internship", description: "Analyze user transaction patterns to identify market trends. You will prepare weekly reports for the growth and strategy teams.", applyUrl: "https://phonepe.com/careers" },
+            { id: 9, title: "Java Developer", company: "Infosys", location: "Pune", mode: "Hybrid", experience: "0-1", skills: ["Java", "Spring Boot", "Microservices"], source: "Naukri", postedDaysAgo: 8, salaryRange: "4–6 LPA", description: "Provide maintenance and support for international banking clients. Adherence to strict coding standards and agile processes is required.", applyUrl: "https://infosys.com/careers" },
+            { id: 10, title: "SDE-1", company: "CRED", location: "Bangalore", mode: "Onsite", experience: "1-3", skills: ["Node.js", "React", "Kafka"], source: "LinkedIn", postedDaysAgo: 1, salaryRange: "20–35 LPA", description: "Build premium financial experiences for high-trust individuals. High-velocity environment with extreme focus on design and performance.", applyUrl: "https://cred.club/careers" },
+            { id: 11, title: "Junior Web Developer", company: "Paytm", location: "Gurgaon", mode: "Hybrid", experience: "0-1", skills: ["HTML", "Sass", "JavaScript"], source: "Indeed", postedDaysAgo: 6, salaryRange: "7–11 LPA", description: "Develop interactive web portals for merchant services. Ensure cross-browser compatibility and responsiveness across all devices.", applyUrl: "https://paytm.com/jobs" },
+            { id: 12, title: "Cloud Engineer", company: "Accenture", location: "Hyderabad", mode: "Remote", experience: "1-3", skills: ["Azure", "Terraform", "DevOps"], source: "LinkedIn", postedDaysAgo: 5, salaryRange: "9–15 LPA", description: "Consult with global clients on their cloud migration strategies. Implement infrastructure as code and CI/CD pipelines.", applyUrl: "https://accenture.com/careers" },
+            { id: 13, title: "Full Stack Intern", company: "Juspay", location: "Bangalore", mode: "Remote", experience: "Fresher", skills: ["Functional Programming", "Haskell", "PureScript"], source: "Indeed", postedDaysAgo: 2, salaryRange: "₹40k/month Internship", description: "Deep dive into functional programming for payments infrastructure. You will work on highly secure and optimized payment SDKs.", applyUrl: "https://juspay.in/careers" },
+            { id: 14, title: "Backend Developer", company: "Capgemini", location: "Pune", mode: "Hybrid", experience: "1-3", skills: ["Java", "Oracle", "Hibernate"], source: "Naukri", postedDaysAgo: 10, salaryRange: "6–10 LPA", description: "Maintain legacy systems for European automotive clients. Modernize database queries and optimize server-side logic.", applyUrl: "https://capgemini.com/careers" },
+            { id: 15, title: "ML Intern", company: "IBM", location: "Hyderabad", mode: "Onsite", experience: "Fresher", skills: ["Python", "Tensorflow", "R"], source: "LinkedIn", postedDaysAgo: 3, salaryRange: "₹35k/month Internship", description: "Work on Watson-inspired cognitive models for healthcare research. Fine-tune existing datasets and assist in model evaluation.", applyUrl: "https://ibm.com/jobs" },
+            { id: 16, title: "React Developer", company: "Dell", location: "Bangalore", mode: "Hybrid", experience: "3-5", skills: ["React", "MobX", "Storybook"], source: "Indeed", postedDaysAgo: 6, salaryRange: "15–22 LPA", description: "Lead the frontend transformation of internal enterprise tools. Enforce accessibility standards and mentor junior developers.", applyUrl: "https://dell.com/careers" },
+            { id: 17, title: "SDE-2", company: "Zomato", location: "Gurgaon", mode: "Onsite", experience: "3-5", skills: ["Go", "Kubernetes", "Redis"], source: "LinkedIn", postedDaysAgo: 1, salaryRange: "25–40 LPA", description: "Optimize the order fulfillment engine for peak hour spikes. Monitor system health and troubleshoot bottlenecks in real-time.", applyUrl: "https://zomato.com/careers" },
+            { id: 18, title: "Systems Engineer", company: "Wipro", location: "Chennai", mode: "Onsite", experience: "0-1", skills: ["Linux", "Scripting", "NetApp"], source: "Naukri", postedDaysAgo: 9, salaryRange: "3.5–4.5 LPA", description: "Network administration and system maintenance for internal data centers. Ensure 99.9% uptime and handle ticket escalations.", applyUrl: "https://wipro.com/careers" },
+            { id: 19, title: "UI Developer", company: "Cognizant", location: "Kolkata", mode: "Hybrid", experience: "1-3", skills: ["CSS3", "Angular", "Bootstrap"], source: "LinkedIn", postedDaysAgo: 7, salaryRange: "5–8 LPA", description: "Build scalable web components for insurance domain portals. Collaborate with UI designers to ensure high-fidelity implementation.", applyUrl: "https://cognizant.com/careers" },
+            { id: 20, title: "App Developer", company: "Oracle", location: "Bangalore", mode: "Onsite", experience: "1-3", skills: ["Java", "PL/SQL", "APEX"], source: "LinkedIn", postedDaysAgo: 4, salaryRange: "14–20 LPA", description: "Develop and extend suite applications using Oracle proprietary technologies. Focus on high-availability and extreme performance.", applyUrl: "https://oracle.com/jobs" },
+            { id: 21, title: "Backend Engineer", company: "SAP", location: "Bangalore", mode: "Hybrid", experience: "3-5", skills: ["Java", "HanaDB", "Spring"], source: "Indeed", postedDaysAgo: 5, salaryRange: "18–28 LPA", description: "Build cloud-native extensions for SAP S/4HANA. Focus on multi-tenancy support and secure integration patterns.", applyUrl: "https://sap.com/careers" },
+            { id: 22, title: "Frontend Lead", company: "Ola", location: "Bangalore", mode: "Onsite", experience: "3-5", skills: ["React", "System Design", "Webpack"], source: "LinkedIn", postedDaysAgo: 2, salaryRange: "30–45 LPA", description: "Own the frontend architecture for our electric vehicle dashboard. Ensure seamless integration with real-time IoT data streams.", applyUrl: "https://ola.com/careers" },
+            { id: 23, title: "Security Intern", company: "Zscaler", location: "Chandigarh", mode: "Remote", experience: "Fresher", skills: ["C", "Networking", "Pen-testing"], source: "LinkedIn", postedDaysAgo: 3, salaryRange: "₹45k/month Internship", description: "Learn cloud security fundamentals. You will assist the threat research team in documenting new malware patterns.", applyUrl: "https://zscaler.com/jobs" },
+            { id: 24, title: "SRE-1", company: "Uber", location: "Hyderabad", mode: "Hybrid", experience: "1-3", skills: ["Python", "Go", "Observability"], source: "LinkedIn", postedDaysAgo: 1, salaryRange: "22–32 LPA", description: "Maintain the reliability of global rider services. Develop automated tooling for incident response and capacity planning.", applyUrl: "https://uber.com/careers" },
+            { id: 25, title: "DevOps Intern", company: "Myntra", location: "Bangalore", mode: "Onsite", experience: "Fresher", skills: ["Docker", "Jenkins", "Ansible"], source: "Indeed", postedDaysAgo: 4, salaryRange: "₹25k/month Internship", description: "Automate deployment workflows for the e-commerce frontend team. Assist in migrating services to containerized environments.", applyUrl: "https://myntra.com/jobs" },
+            { id: 26, title: "Node.js Developer", company: "Unacademy", location: "Bangalore", mode: "Remote", experience: "1-3", skills: ["Node", "Express", "Socket.io"], source: "LinkedIn", postedDaysAgo: 6, salaryRange: "12–19 LPA", description: "Build real-time collaborative tools for live teaching. Focus on reducing latency and improving socket connection stability.", applyUrl: "https://unacademy.com/careers" },
+            { id: 27, title: "Android Developer", company: "PhonePe", location: "Pune", mode: "Hybrid", experience: "3-5", skills: ["Kotlin", "Jetpack Compose", "Dagger"], source: "Naukri", postedDaysAgo: 3, salaryRange: "20–30 LPA", description: "Lead the payments feature team for Android. Implement high-security merchant transaction modules and optimize app startup time.", applyUrl: "https://phonepe.com/careers" },
+            { id: 28, title: "Test Engineer", company: "Wipro", location: "Bangalore", mode: "Hybrid", experience: "0-1", skills: ["API Testing", "Postman", "SQL"], source: "Naukri", postedDaysAgo: 8, salaryRange: "3.8–5 LPA", description: "Execute functional test cases for a global retail client. Coordinate with the development team for bug fixes and re-testing.", applyUrl: "https://wipro.com/careers" },
+            { id: 29, title: "Data Engineer", company: "Swiggy", location: "Bangalore", mode: "Onsite", experience: "1-3", skills: ["Spark", "Airflow", "Scala"], source: "LinkedIn", postedDaysAgo: 4, salaryRange: "16–24 LPA", description: "Build scalable data pipelines for processing gigabytes of delivery logs. Optimize warehouse queries for better business insights.", applyUrl: "https://swiggy.com/jobs" },
+            { id: 30, title: "Graduate Trainee", company: "HCLTech", location: "Noida", mode: "Onsite", experience: "Fresher", skills: ["Java", "Mainframe", "SDLC"], source: "Naukri", postedDaysAgo: 7, salaryRange: "3.3–4 LPA", description: "Standard training program followed by allocation to enterprise support projects. You will work on maintaining global infra systems.", applyUrl: "https://hcltech.com/careers" },
+            { id: 31, title: "Junior UI Designer", company: "CRED", location: "Bangalore", mode: "Onsite", experience: "0-1", skills: ["Figma", "Prototyping", "Visual Design"], source: "LinkedIn", postedDaysAgo: 2, salaryRange: "10–15 LPA", description: "Collaborate on building a unique credit-card lifestyle interface. High focus on micro-interactions and visual storytelling.", applyUrl: "https://cred.club/careers" },
+            { id: 32, title: "Python Engineer", company: "Instamojo", location: "Bangalore", mode: "Remote", experience: "1-3", skills: ["Python", "Flask", "Postgres"], source: "LinkedIn", postedDaysAgo: 5, salaryRange: "9–14 LPA", description: "Build merchant-facing payment links and simple e-commerce stores. Focus on clean code and developer-friendly APIs.", applyUrl: "https://instamojo.com/jobs" },
+            { id: 33, title: "Systems Analyst", company: "Capgemini", location: "Chennai", mode: "Hybrid", experience: "3-5", skills: ["Business Analysis", "UML", "Jira"], source: "Naukri", postedDaysAgo: 9, salaryRange: "10–14 LPA", description: "Bridge the gap between business requirements and technical specs for French manufacturing clients. Moderate travel may be required.", applyUrl: "https://capgemini.com/jobs" },
+            { id: 34, title: "React Native Intern", company: "Meesho", location: "Bangalore", mode: "Onsite", experience: "Fresher", skills: ["React Native", "Redux", "API"], source: "LinkedIn", postedDaysAgo: 1, salaryRange: "₹20k/month Internship", description: "Assist in building social commerce features on our mobile app. You will learn to debug cross-platform performance issues.", applyUrl: "https://meesho.io/careers" },
+            { id: 35, title: "Lead Backend Developer", company: "Delhivery", location: "Gurgaon", mode: "Hybrid", experience: "3-5", skills: ["Python", "AWS", "Logistics Tech"], source: "LinkedIn", postedDaysAgo: 3, salaryRange: "28–38 LPA", description: "Architect the routing engine for millions of daily shipments. Lead a team of 4 engineers and define backend best practices.", applyUrl: "https://delhivery.com/careers" },
+            { id: 36, title: "QA Analyst", company: "Qualcomm", location: "Hyderabad", mode: "Onsite", experience: "1-3", skills: ["Python", "Embedded Testing", "Perl"], source: "Indeed", postedDaysAgo: 6, salaryRange: "12–18 LPA", description: "Validate modem firmware for upcoming mobile chipsets. You will write high-level hardware abstraction tests using Python.", applyUrl: "https://qualcomm.com/jobs" },
+            { id: 37, title: "Web Developer", company: "Zoho", location: "Tenkasi", mode: "Onsite", experience: "0-1", skills: ["JavaScript", "HTML5", "CSS3"], source: "LinkedIn", postedDaysAgo: 4, salaryRange: "5–8 LPA", description: "Work from our rural office in Tenkasi. You will be building consumer-facing web apps for Zoho's diverse product ecosystem.", applyUrl: "https://zoho.com/tenkasi/jobs" },
+            { id: 38, title: "Software Engineer", company: "Google", location: "Bangalore", mode: "Hybrid", experience: "1-3", skills: ["C++", "Algorithms", "Scale"], source: "LinkedIn", postedDaysAgo: 1, salaryRange: "35–55 LPA", description: "Join the search infrastructure team. You will work on indexing and ranking systems that serve billions of queries world-wide.", applyUrl: "https://google.com/careers" },
+            { id: 39, title: "Content QA Intern", company: "Skillshare", location: "Remote", mode: "Remote", experience: "Fresher", skills: ["English", "Content Review", "LMS"], source: "Indeed", postedDaysAgo: 10, salaryRange: "₹15k/month Internship", description: "Review educational content for clarity and technical accuracy. Ensure all course materials meet Skillshare's production values.", applyUrl: "https://skillshare.com/careers" },
+            { id: 40, title: "Site Reliability Engineer", company: "Microsoft", location: "Hyderabad", mode: "Hybrid", experience: "3-5", skills: ["Azure", "Kubernetes", "C#"], source: "LinkedIn", postedDaysAgo: 3, salaryRange: "25–38 LPA", description: "Ensure the availability and performance of Microsoft Teams infrastructure. Focus on automation and auto-scaling logic.", applyUrl: "https://microsoft.com/jobs" },
+            { id: 41, title: "Front-end Specialist", company: "Smallcase", location: "Bangalore", mode: "Hybrid", experience: "1-3", skills: ["React", "D3.js", "Finance UI"], source: "LinkedIn", postedDaysAgo: 5, salaryRange: "14–22 LPA", description: "Design and implement complex financial charts and portfolio management views. High focus on data visualization and responsiveness.", applyUrl: "https://smallcase.com/careers" },
+            { id: 42, title: "SDE-1", company: "CoinSwitch", location: "Bangalore", mode: "Remote", experience: "1-3", skills: ["Go", "Crypto", "Microservices"], source: "LinkedIn", postedDaysAgo: 2, salaryRange: "18–26 LPA", description: "Develop high-throughput crypto-trading engines. You will be responsible for security-first backend development and API design.", applyUrl: "https://coinswitch.co/jobs" },
+            { id: 43, title: "ML Engineer", company: "Nvidia", location: "Pune", mode: "Onsite", experience: "3-5", skills: ["CUDA", "C++", "PyTorch"], source: "LinkedIn", postedDaysAgo: 4, salaryRange: "30–50 LPA", description: "Optimize deep learning frameworks for specialized GPU architectures. Work on cutting-edge computer vision and AI models.", applyUrl: "https://nvidia.com/careers" },
+            { id: 44, title: "Associate Software Engineer", company: "Optum", location: "Gurgaon", mode: "Onsite", experience: "0-1", skills: ["Java", "Spring Boot", "Health IT"], source: "Naukri", postedDaysAgo: 8, salaryRange: "8–12 LPA", description: "Contribute to building healthcare management systems for US-based clients. Adhere to HIPAA standards and secure data handling.", applyUrl: "https://optum.com/jobs" },
+            { id: 45, title: "Cloud Support Intern", company: "AWS", location: "Bangalore", mode: "Remote", experience: "Fresher", skills: ["Linux", "Networking", "IAM"], source: "LinkedIn", postedDaysAgo: 2, salaryRange: "₹30k/month Internship", description: "Learn to troubleshoot complex cloud infrastructure issues. Assist global customers in configuring secure AWS environments.", applyUrl: "https://amazon.jobs/intern-aws" },
+            { id: 46, title: "Full Stack Dev", company: "Zerodha", location: "Bangalore", mode: "Remote", experience: "1-3", skills: ["Go", "React", "Linux"], source: "LinkedIn", postedDaysAgo: 1, salaryRange: "20–30 LPA", description: "Work on India's largest trading platform. We value independent problem solvers who can ship clean, minimal, and fast code.", applyUrl: "https://zerodha.tech/careers" },
+            { id: 47, title: "Systems Engineer Trainee", company: "Infosys", location: "Mysore", mode: "Onsite", experience: "Fresher", skills: ["Java", "SQL", "Communication"], source: "Naukri", postedDaysAgo: 9, salaryRange: "3.6 LPA", description: "Attend the world-renowned Infosys Global Education Center for rigorous software foundation training before project deployment.", applyUrl: "https://infosys.com/mysore" },
+            { id: 48, title: "Data Analyst", company: "Oyo", location: "Gurgaon", mode: "Hybrid", experience: "1-3", skills: ["Python", "SQL", "Excel"], source: "Indeed", postedDaysAgo: 6, salaryRange: "8–14 LPA", description: "Use data to optimize dynamic pricing for Oyo rooms worldwide. You will collaborate with the revenue and growth teams.", applyUrl: "https://oyo.com/jobs" },
+            { id: 49, title: "iOS Developer", company: "CRED", location: "Bangalore", mode: "Onsite", experience: "3-5", skills: ["Swift", "Combine", "UIKIt"], source: "LinkedIn", postedDaysAgo: 3, salaryRange: "25–40 LPA", description: "Help build the most visually stunning iOS app in India. We emphasize pixel-perfect UI and buttery-smooth animations.", applyUrl: "https://cred.club/careers/ios" },
+            { id: 50, title: "Java Developer", company: "Morgan Stanley", location: "Mumbai", mode: "Hybrid", experience: "1-3", skills: ["Java", "Multithreading", "Algorithms"], source: "LinkedIn", postedDaysAgo: 5, salaryRange: "18–28 LPA", description: "Develop high-frequency trading platforms for institutional global clients. Proficiency in low-latency Java is highly desired.", applyUrl: "https://morganstanley.com/careers" },
+            { id: 51, title: "Frontend Intern", company: "Razorpay", location: "Remote", mode: "Remote", experience: "Fresher", skills: ["JavaScript", "HTML", "Sass"], source: "LinkedIn", postedDaysAgo: 2, salaryRange: "₹30k/month Internship", description: "Help build the future of money in India. Ideal for interns who are obsessed with detail and high-quality web experiences.", applyUrl: "https://razorpay.com/interns" },
+            { id: 52, title: "SDE-1", company: "Blinkit", location: "Gurgaon", mode: "Onsite", experience: "1-3", skills: ["Node.js", "Redis", "ElasticSearch"], source: "LinkedIn", postedDaysAgo: 1, salaryRange: "15–20 LPA", description: "Optimize the 10-minute delivery engine. You'll work on real-time inventory management and rider assignment algorithms.", applyUrl: "https://blinkit.com/careers" },
+            { id: 53, title: "Junior Python Dev", company: "LTI Mindtree", location: "Bangalore", mode: "Hybrid", experience: "Fresher", skills: ["Python", "Flask", "Docker"], source: "Naukri", postedDaysAgo: 7, salaryRange: "4–6.5 LPA", description: "Standard associate role working on enterprise application development. You'll be part of the R&D division for energy vertical.", applyUrl: "https://ltimindtree.com/careers" },
+            { id: 54, title: "Security Analyst", company: "Palo Alto", location: "Bangalore", mode: "Hybrid", experience: "1-3", skills: ["SIEM", "Splunk", "Linux"], source: "LinkedIn", postedDaysAgo: 4, salaryRange: "14–20 LPA", description: "Monitor and respond to security threats across global infrastructure. High focus on log analysis and threat intelligence.", applyUrl: "https://paloalto.com/jobs" },
+            { id: 55, title: "Full Stack Engineer", company: "Groww", location: "Bangalore", mode: "Onsite", experience: "1-3", skills: ["Java", "React", "Kafka"], source: "LinkedIn", postedDaysAgo: 3, salaryRange: "18–28 LPA", description: "Build scalable investment platforms for the masses. You will develop backend microservices and responsive frontend views.", applyUrl: "https://groww.in/careers" },
+            { id: 56, title: "Backend Intern", company: "Inmobi", location: "Bangalore", mode: "Onsite", experience: "Fresher", skills: ["Go", "SQL", "Spark"], source: "Indeed", postedDaysAgo: 2, salaryRange: "₹25k/month Internship", description: "Join our ad-tech platform team. You will assist in processing petabytes of advertisement data for global targeting.", applyUrl: "https://inmobi.com/jobs" },
+            { id: 57, title: "React Developer", company: "Postman", location: "Bangalore", mode: "Remote", experience: "3-5", skills: ["React", "Electron", "Testing"], source: "LinkedIn", postedDaysAgo: 5, salaryRange: "25–45 LPA", description: "Improve the developer experience of the world's most popular API client. Focus on performance and complex desktop-hybrid UI.", applyUrl: "https://postman.com/careers" },
+            { id: 58, title: "Systems Engineer", company: "TCS", location: "Noida", mode: "Onsite", experience: "0-1", skills: ["SQL", "PL/SQL", "Linux"], source: "Naukri", postedDaysAgo: 10, salaryRange: "3.5–4.5 LPA", description: "Handle support and maintenance for a major US-based airlines client. Ensure system stability and handle patch deployments.", applyUrl: "https://tcs.com/jobs/noida" },
+            { id: 59, title: "QA Intern", company: "Accenture", location: "Bangalore", mode: "Hybrid", experience: "Fresher", skills: ["API Testing", "Manual Testing"], source: "Indeed", postedDaysAgo: 4, salaryRange: "₹18k/month Internship", description: "Execute test scripts for a hospitality client. Identify regressions and work closely with the dev team for faster delivery.", applyUrl: "https://accenture.com/careers/qa" },
+            { id: 60, title: "Data Scientist", company: "Target", location: "Bangalore", mode: "Onsite", experience: "3-5", skills: ["Python", "PySpark", "Data Viz"], source: "LinkedIn", postedDaysAgo: 6, salaryRange: "20–35 LPA", description: "Use advanced analytics to predict retail demand. Collaborate with global stakeholders to refine supply chain efficiency.", applyUrl: "https://target.com/jobs/data" }
         ];
 
         let state = {
-            settings: JSON.parse(localStorage.getItem('jobTrackerSettings')) || {
-                keywords: "",
-                locations: "",
-                mode: "any",
-                experience: "any"
-            },
             savedJobIds: JSON.parse(localStorage.getItem('savedJobIds')) || []
         };
 
         // --- CORE LOGIC ---
-        function getMatchedJobs() {
+        function getFilteredJobs() {
+            const keyword = document.getElementById('filter-keyword').value.toLowerCase();
+            const location = document.getElementById('filter-location').value;
+            const mode = document.getElementById('filter-mode').value;
+            const experience = document.getElementById('filter-experience').value;
+            const source = document.getElementById('filter-source').value;
+            const sort = document.getElementById('filter-sort').value;
+
             return ALL_JOBS.filter(job => {
-                // Keyword match
-                const kwMatch = state.settings.keywords === "" ||
-                    state.settings.keywords.toLowerCase().split(',').some(k =>
-                        job.title.toLowerCase().includes(k.trim()) ||
-                        job.keywords.some(jk => jk.toLowerCase().includes(k.trim()))
-                    );
+                const kwMatch = keyword === "" ||
+                    job.title.toLowerCase().includes(keyword) ||
+                    job.company.toLowerCase().includes(keyword);
 
-                // Location match
-                const locMatch = state.settings.locations === "" ||
-                    state.settings.locations.toLowerCase().split(',').some(l =>
-                        job.location.toLowerCase().includes(l.trim())
-                    );
+                const locMatch = location === "all" ||
+                    (location === "remote" && job.location.toLowerCase() === "remote") ||
+                    job.location.toLowerCase() === location.toLowerCase();
 
-                // Mode match
-                const modeMatch = state.settings.mode === "any" || job.mode === state.settings.mode;
+                const modeMatch = mode === "all" || job.mode === mode;
+                const expMatch = experience === "all" || job.experience === experience;
+                const sourceMatch = source === "all" || job.source === source;
 
-                // Experience match
-                const expMatch = state.settings.experience === "any" || job.experience === state.settings.experience;
-
-                return kwMatch && locMatch && modeMatch && expMatch;
+                return kwMatch && locMatch && modeMatch && expMatch && sourceMatch;
+            }).sort((a, b) => {
+                if (sort === "latest") return a.postedDaysAgo - b.postedDaysAgo;
+                return b.postedDaysAgo - a.postedDaysAgo;
             });
         }
 
         // --- UI RENDERING ---
         function renderJobCard(job) {
             const isSaved = state.savedJobIds.includes(job.id);
+            const sourceClass = `badge-${job.source.toLowerCase()}`;
             return `
                 <div class="job-card ${isSaved ? 'saved' : ''}">
                     <div>
                         <div class="job-header">
                             <span class="job-company">${job.company}</span>
-                            <span class="badge badge-match">98% Match</span>
+                            <span class="badge ${sourceClass} badge-source">${job.source}</span>
                         </div>
                         <h3 class="job-title">${job.title}</h3>
                         <div class="job-meta">
@@ -208,117 +310,174 @@
                             <span><i class="fas fa-laptop-house"></i> ${job.mode}</span>
                             <span><i class="fas fa-signal"></i> ${job.experience}</span>
                         </div>
+                        <div class="salary-highlight">${job.salaryRange}</div>
                     </div>
                     <div class="job-actions">
-                        <span class="text-small" style="color: var(--color-text-muted)">Posted 2h ago</span>
-                        <button class="btn-save ${isSaved ? 'active' : ''}" onclick="toggleSave(${job.id})">
-                            <i class="${isSaved ? 'fas' : 'far'} fa-bookmark"></i>
-                        </button>
+                        <span class="text-small" style="color: var(--color-text-muted)">${job.postedDaysAgo === 0 ? 'Today' : job.postedDaysAgo + ' days ago'}</span>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <button class="btn btn-primary" style="padding: 6px 12px; font-size: 12px;" onclick="viewJob(${job.id})">View</button>
+                            <a href="${job.applyUrl}" target="_blank" class="btn" style="padding: 6px 12px; font-size: 12px; border: 1px solid var(--color-border);">Apply</a>
+                            <button class="btn-save ${isSaved ? 'active' : ''}" onclick="toggleSave(${job.id})">
+                                <i class="${isSaved ? 'fas' : 'far'} fa-bookmark"></i>
+                            </button>
+                        </div>
                     </div>
                 </div>
             `;
         }
 
         function updateUI() {
-            const matchedJobs = getMatchedJobs();
+            const filteredJobs = getFilteredJobs();
 
-            // Dashboard
-            const dashboardContainer = document.querySelector('#page-dashboard');
-            if (matchedJobs.length > 0) {
-                dashboardContainer.innerHTML = `
-                    <div class="context-header">
-                        <h1>Recommended for You</h1>
-                        <p class="subtext">Based on your precision preferences.</p>
-                    </div>
-                    <div class="job-grid">${matchedJobs.map(j => renderJobCard(j)).join('')}</div>
-                `;
-            } else {
-                dashboardContainer.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-search"></i>
-                        <h2>No exact matches.</h2>
-                        <p>Try broadening your preferences in Settings.</p>
-                    </div>
-                `;
+            // Dashboard Rendering
+            const dashboardContainer = document.querySelector('#job-list');
+            if (dashboardContainer) {
+                if (filteredJobs.length > 0) {
+                    dashboardContainer.innerHTML = filteredJobs.map(j => renderJobCard(j)).join('');
+                } else {
+                    dashboardContainer.innerHTML = `
+                        <div class="empty-state" style="grid-column: 1 / -1;">
+                            <i class="fas fa-search"></i>
+                            <h2>No results found.</h2>
+                            <p>Try adjusting your filters or keyword search.</p>
+                        </div>
+                    `;
+                }
             }
 
-            // Saved Page
-            const savedContainer = document.querySelector('#page-saved');
+            // Saved Page Rendering
+            const savedSection = document.querySelector('#page-saved');
             const savedJobs = ALL_JOBS.filter(j => state.savedJobIds.includes(j.id));
-            if (savedJobs.length > 0) {
-                savedContainer.innerHTML = `
-                    <div class="context-header">
-                        <h1>Saved Opportunities</h1>
-                        <p class="subtext">Your curated shortlist of high-potential roles.</p>
-                    </div>
-                    <div class="job-grid">${savedJobs.map(j => renderJobCard(j)).join('')}</div>
-                `;
-            } else {
-                savedContainer.innerHTML = `
-                    <div class="empty-state">
-                        <i class="far fa-bookmark"></i>
-                        <h2>Your shortlist is empty.</h2>
-                        <p>Save jobs from the dashboard to review them later.</p>
-                    </div>
-                `;
+            if (savedSection && savedSection.classList.contains('active')) {
+                if (savedJobs.length > 0) {
+                    savedSection.innerHTML = `
+                        <div class="context-header">
+                            <h1>Saved Opportunities</h1>
+                            <p class="subtext">Your curated shortlist of high-potential roles.</p>
+                        </div>
+                        <div class="job-grid">${savedJobs.map(j => renderJobCard(j)).join('')}</div>
+                    `;
+                } else {
+                    savedSection.innerHTML = `
+                         <div class="context-header">
+                            <h1>Saved Opportunities</h1>
+                            <p class="subtext">Your curated shortlist of high-potential roles.</p>
+                        </div>
+                        <div class="empty-state">
+                            <i class="far fa-bookmark"></i>
+                            <h2>Your shortlist is empty.</h2>
+                            <p>Save jobs from the dashboard to review them later.</p>
+                        </div>
+                    `;
+                }
             }
 
             // Digest Page (Top 3 Matches)
             const digestContainer = document.querySelector('#page-digest');
-            const digestJobs = matchedJobs.slice(0, 3);
-            if (digestJobs.length > 0) {
-                digestContainer.innerHTML = `
-                    <div class="context-header">
-                        <h1>Daily Digest</h1>
-                        <p class="subtext">The three most relevant opportunities for ${new Date().toLocaleDateString()}.</p>
-                    </div>
-                    <div class="job-grid">${digestJobs.map(j => renderJobCard(j)).join('')}</div>
-                `;
-            } else {
-                digestContainer.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-envelope-open-text"></i>
-                        <h2>Nothing for today's digest.</h2>
-                        <p>Update your preferences to receive better daily matches.</p>
-                    </div>
-                `;
+            const digestJobs = filteredJobs.slice(0, 3);
+            if (digestContainer && digestContainer.classList.contains('active')) {
+                if (digestJobs.length > 0) {
+                    digestContainer.innerHTML = `
+                        <div class="context-header">
+                            <h1>Daily Digest</h1>
+                            <p class="subtext">The three most relevant opportunities for ${new Date().toLocaleDateString()}.</p>
+                        </div>
+                        <div class="job-grid">${digestJobs.map(j => renderJobCard(j)).join('')}</div>
+                    `;
+                } else {
+                    digestContainer.innerHTML = `
+                        <div class="empty-state">
+                            <i class="fas fa-envelope-open-text"></i>
+                            <h2>Nothing for today's digest.</h2>
+                            <p>Update your preferences to receive better daily matches.</p>
+                        </div>
+                    `;
+                }
             }
 
             // Proof Page Stats
             const proofContainer = document.querySelector('#page-proof');
-            proofContainer.innerHTML = `
-                <div class="context-header">
-                    <h1>Proof of Work</h1>
-                    <p class="subtext">System integrity report and runtime statistics.</p>
-                </div>
-                <div class="proof-container">
-                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
-                        <div class="card" style="margin-bottom: 0;">
-                            <h2 style="font-size: 48px; margin: 0;">${matchedJobs.length}</h2>
-                            <p class="subtext" style="font-size: 14px;">Total Matches Found</p>
+            if (proofContainer && proofContainer.classList.contains('active')) {
+                proofContainer.innerHTML = `
+                    <div class="context-header">
+                        <h1>Proof of Work</h1>
+                        <p class="subtext">System integrity report and runtime statistics.</p>
+                    </div>
+                    <div class="proof-container">
+                        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+                            <div class="card" style="margin-bottom: 0;">
+                                <h2 style="font-size: 48px; margin: 0;">${filteredJobs.length}</h2>
+                                <p class="subtext" style="font-size: 14px;">Total Matches Found</p>
+                            </div>
+                            <div class="card" style="margin-bottom: 0;">
+                                <h2 style="font-size: 48px; margin: 0;">${state.savedJobIds.length}</h2>
+                                <p class="subtext" style="font-size: 14px;">Opportunities Saved</p>
+                            </div>
                         </div>
-                        <div class="card" style="margin-bottom: 0;">
-                            <h2 style="font-size: 48px; margin: 0;">${state.savedJobIds.length}</h2>
-                            <p class="subtext" style="font-size: 14px;">Opportunities Saved</p>
+                        <div style="margin-top: 24px; text-align: left; background: var(--color-bg); padding: 16px; border-radius: 4px; font-family: monospace; font-size: 12px;">
+                            <div>[SYSTEM] Initializing matching engine... OK</div>
+                            <div>[DATA] Fetched ${ALL_JOBS.length} job records.</div>
+                            <div>[STATE] Settings loaded from localStorage.</div>
+                            <div>[ROUTING] Current Hash: ${window.location.hash || '#/'}</div>
                         </div>
                     </div>
-                    <div style="margin-top: 24px; text-align: left; background: var(--color-bg); padding: 16px; border-radius: 4px; font-family: monospace; font-size: 12px;">
-                        <div>[SYSTEM] Initializing matching engine... OK</div>
-                        <div>[DATA] Fetched ${ALL_JOBS.length} job records.</div>
-                        <div>[STATE] Settings loaded from localStorage.</div>
-                        <div>[ROUTING] Current Hash: ${window.location.hash || '#/'}</div>
-                    </div>
-                </div>
-            `;
+                `;
+            }
 
-            // Settings Sync
-            document.querySelector('#kw-input').value = state.settings.keywords;
-            document.querySelector('#loc-input').value = state.settings.locations;
-            document.querySelector('#mode-select').value = state.settings.mode;
-            document.querySelector('#exp-select').value = state.settings.experience;
+            // Settings Sync (if settings page is active)
+            const settingsPage = document.querySelector('#page-settings');
+            if (settingsPage && settingsPage.classList.contains('active')) {
+                // This part assumes settings are still managed by state.settings,
+                // but the provided diff removed state.settings.
+                // For now, I'll keep the UI sync as it was, assuming state.settings
+                // might be re-introduced or managed differently.
+                // If state.settings is truly removed, this part would need to be removed too.
+                // For this specific instruction, I'll keep it as it was not part of the diff to remove.
+                // However, the original `state` definition was replaced, so `state.settings` is undefined.
+                // I will comment this out as it would cause an error.
+                /*
+                document.querySelector('#kw-input').value = state.settings.keywords;
+                document.querySelector('#loc-input').value = state.settings.locations;
+                document.querySelector('#mode-select').value = state.settings.mode;
+                document.querySelector('#exp-select').value = state.settings.experience;
+                */
+            }
         }
 
         // --- ACTIONS ---
+        function viewJob(id) {
+            const job = ALL_JOBS.find(j => j.id === id);
+            const modal = document.getElementById('job-modal');
+            const body = document.getElementById('modal-body');
+
+            body.innerHTML = `
+                <div class="modal-subtitle">${job.company} &bull; ${job.location}</div>
+                <h1 class="modal-title">${job.title}</h1>
+                <div style="margin-bottom: 24px;">
+                    <span class="badge badge-match">${job.mode}</span>
+                    <span class="badge" style="background: var(--color-bg)">${job.experience}</span>
+                    <span class="salary-highlight" style="margin-left: 12px;">${job.salaryRange}</span>
+                </div>
+                
+                <h4 style="margin-bottom: 8px;">Key Skills</h4>
+                <div style="margin-bottom: 24px;">
+                    ${job.skills.map(s => `<span class="skill-tag">${s}</span>`).join('')}
+                </div>
+
+                <h4 style="margin-bottom: 8px;">Description</h4>
+                <p style="color: var(--color-text-primary); line-height: 1.6; margin-bottom: 32px;">${job.description}</p>
+                
+                <div style="display: flex; gap: 12px;">
+                    <a href="${job.applyUrl}" target="_blank" class="btn btn-primary" style="flex: 1; text-align: center; text-decoration: none;">Apply on ${job.source}</a>
+                </div>
+            `;
+            modal.classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('job-modal').classList.remove('active');
+        }
+
         function toggleSave(id) {
             const index = state.savedJobIds.indexOf(id);
             if (index > -1) {
@@ -330,6 +489,10 @@
             updateUI();
         }
 
+        // The saveSettings function was removed from the provided diff.
+        // If it's still needed, it would need to be re-added with appropriate state management.
+        // For now, I'm removing it as per the diff.
+        /*
         function saveSettings() {
             state.settings = {
                 keywords: document.querySelector('#kw-input').value,
@@ -341,6 +504,7 @@
             updateUI();
             alert("Preferences Updated.");
         }
+        */
 
         // --- ROUTING ---
         function handleRouting() {
@@ -359,17 +523,25 @@
             });
 
             document.getElementById('nav-links').classList.remove('show');
+
+            // Refresh UI on route change to handle saved page state
+            updateUI();
         }
 
         window.addEventListener('hashchange', handleRouting);
         window.addEventListener('DOMContentLoaded', () => {
             handleRouting();
-            updateUI();
         });
 
         document.getElementById('menu-toggle').addEventListener('click', () => {
             document.getElementById('nav-links').classList.toggle('show');
         });
+
+        // Close modal on click outside
+        window.onclick = function (event) {
+            const modal = document.getElementById('job-modal');
+            if (event.target == modal) closeModal();
+        }
     </script>
 
 </body>
