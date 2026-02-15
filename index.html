@@ -27,6 +27,8 @@
             <li><a href="#/digest" class="nav-link" data-route="digest">Digest</a></li>
             <li><a href="#/settings" class="nav-link" data-route="settings">Settings</a></li>
             <li><a href="#/proof" class="nav-link" data-route="proof">Proof</a></li>
+            <li><a href="#/jt/07-test" class="nav-link" data-route="jt-07-test">Test Checklist</a></li>
+            <li><a href="#/jt/08-ship" class="nav-link" data-route="jt-08-ship">Ship</a></li>
         </nav>
     </header>
 
@@ -317,8 +319,11 @@
             preferences: JSON.parse(localStorage.getItem('jobTrackerPreferences')) || null,
             savedJobIds: JSON.parse(localStorage.getItem('savedJobIds')) || [],
             jobStatus: JSON.parse(localStorage.getItem('jobTrackerStatus')) || {},
-            statusHistory: JSON.parse(localStorage.getItem('jobTrackerStatusHistory')) || []
+            statusHistory: JSON.parse(localStorage.getItem('jobTrackerStatusHistory')) || [],
+            testChecks: JSON.parse(localStorage.getItem('jobTrackerTestChecks')) || Array(10).fill(false)
         };
+
+        const getPassCount = () => state.testChecks.filter(c => c).length;
 
         // --- MATCH SCORING ENGINE ---
         function calculateMatchScore(job, prefs) {
@@ -910,7 +915,123 @@
             }
 
             // Refresh UI on route change to handle saved page state
+            if (activeRoute === 'jt-07-test') {
+                renderChecklist();
+            }
+            if (activeRoute === 'jt-08-ship') {
+                renderShipPage();
+            }
+
             updateUI();
+        }
+
+        // --- CHECKLIST ENGINE ---
+        const TEST_ITEMS = [
+            { id: 0, title: "Preferences persist after refresh", tip: "Update settings, refresh, and check if values are still there." },
+            { id: 1, title: "Match score calculates correctly", tip: "Ensure scores appearing on cards match your role keywords." },
+            { id: 2, title: '"Show only matches" toggle works', tip: "Toggle it and confirm the list filters items under threshold." },
+            { id: 3, title: "Save job persists after refresh", tip: "Save a job, refresh, and check the 'Saved' page." },
+            { id: 4, title: "Apply opens in new tab", tip: "Click Apply and check if a new tab is launched." },
+            { id: 5, title: "Status update persists after refresh", tip: "Change a status to 'Applied', refresh, and verify badge color." },
+            { id: 6, title: "Status filter works correctly", tip: "Filter by 'Applied' and ensure correct jobs are isolated." },
+            { id: 7, title: "Digest generates top 10 by score", tip: "Generate digest and verify orders are by match score desc." },
+            { id: 8, title: "Digest persists for the day", tip: "Generate digest, refresh, and verify it's still rendered." },
+            { id: 9, title: "No console errors on main pages", tip: "Open DevTools and ensure no red error logs appear." }
+        ];
+
+        function renderChecklist() {
+            const root = document.getElementById('checklist-root');
+            if (!root) return;
+
+            const passCount = getPassCount();
+            const allPassed = passCount === 10;
+
+            root.innerHTML = `
+                <div class="checklist-container">
+                    <div class="test-summary-banner ${allPassed ? 'banner-success' : 'banner-warning'}">
+                        <div>
+                            <h2 style="margin: 0;">Tests Passed: ${passCount} / 10</h2>
+                            <p style="margin: 4px 0 0 0;">${allPassed ? 'System integrity verified. Ready for ship.' : 'Resolve all issues before shipping.'}</p>
+                        </div>
+                        <button class="btn" style="border: 1px solid var(--color-border); background: white;" onclick="resetTests()">Reset Status</button>
+                    </div>
+
+                    <div class="checklist-items">
+                        ${TEST_ITEMS.map(item => `
+                            <div class="checklist-item">
+                                <input type="checkbox" ${state.testChecks[item.id] ? 'checked' : ''} onchange="toggleTest(${item.id}, this.checked)">
+                                <div class="checklist-content">
+                                    <div class="checklist-title">
+                                        ${item.title}
+                                        <i class="fas fa-info-circle test-tooltip" title="${item.tip}"></i>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function toggleTest(id, val) {
+            state.testChecks[id] = val;
+            localStorage.setItem('jobTrackerTestChecks', JSON.stringify(state.testChecks));
+            renderChecklist();
+            showToast(val ? "Test passed" : "Test unchecked");
+
+            // If all passed, unlock Ship
+            if (getPassCount() === 10) {
+                showToast("All tests passed! Ship mode unlocked.");
+            }
+        }
+
+        function resetTests() {
+            if (confirm("Reset all test verification status?")) {
+                state.testChecks = Array(10).fill(false);
+                localStorage.setItem('jobTrackerTestChecks', JSON.stringify(state.testChecks));
+                renderChecklist();
+                showToast("Test status reset.");
+            }
+        }
+
+        function renderShipPage() {
+            const root = document.getElementById('ship-root');
+            if (!root) return;
+
+            const passCount = getPassCount();
+            const allPassed = passCount === 10;
+
+            if (!allPassed) {
+                root.innerHTML = `
+                    <div class="lock-screen">
+                        <i class="fas fa-lock lock-icon"></i>
+                        <h1>Resource Locked</h1>
+                        <p class="subtext" style="max-width: 500px; margin: 0 auto 24px;">
+                            You must verify all 10 system integrity checks before you can finalize and ship the application.
+                        </p>
+                        <a href="#/jt/07-test" class="btn btn-primary">Go to Checklist</a>
+                    </div>
+                `;
+            } else {
+                root.innerHTML = `
+                    <div class="ship-success-screen">
+                        <i class="fas fa-rocket success-icon"></i>
+                        <h1>Ready for Deployment</h1>
+                        <p class="subtext" style="max-width: 600px; margin: 0 auto 32px;">
+                            All quality assurance protocols have passed. Your Job Notification Tracker is optimized and ready for production.
+                        </p>
+                        <div class="card" style="text-align: left; max-width: 500px; margin: 0 auto;">
+                            <h3 style="margin-bottom: 12px;">Shipment Details</h3>
+                            <div style="font-family: monospace; font-size: 13px;">
+                                <div>[VERSION] v1.4.0-premium</div>
+                                <div>[COMPLIANCE] 10/10 Tests OK</div>
+                                <div>[INTEGRITY] Verified by persistent state checks</div>
+                                <div style="margin-top: 12px; color: var(--color-accent);">[STATUS] SHIP_AUTH_GRANTED</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
         }
 
         window.addEventListener('hashchange', handleRouting);
