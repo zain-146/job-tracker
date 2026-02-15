@@ -81,25 +81,27 @@
                     <div class="settings-grid">
                         <div class="form-group">
                             <label class="input-label">Role Keywords</label>
-                            <input type="text" class="form-control"
+                            <input type="text" id="kw-input" class="form-control"
                                 placeholder="e.g. Senior Frontend Developer, UI Designer">
                         </div>
                         <div class="form-group">
                             <label class="input-label">Preferred Locations</label>
-                            <input type="text" class="form-control" placeholder="e.g. Remote, San Francisco, London">
+                            <input type="text" id="loc-input" class="form-control"
+                                placeholder="e.g. Remote, San Francisco, London">
                         </div>
                         <div class="form-group">
                             <label class="input-label">Mode</label>
-                            <select class="form-control">
+                            <select id="mode-select" class="form-control">
+                                <option value="any">Any Mode</option>
                                 <option value="remote">Remote Only</option>
                                 <option value="hybrid">Hybrid</option>
                                 <option value="onsite">Onsite</option>
-                                <option value="any">Any Mode</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label class="input-label">Experience Level</label>
-                            <select class="form-control">
+                            <select id="exp-select" class="form-control">
+                                <option value="any">Any Level</option>
                                 <option value="junior">Entry / Junior</option>
                                 <option value="mid">Mid-Level</option>
                                 <option value="senior">Senior</option>
@@ -108,7 +110,7 @@
                         </div>
                     </div>
                     <div style="margin-top: var(--space-3);">
-                        <button class="btn btn-primary">Update Preferences</button>
+                        <button class="btn btn-primary" onclick="saveSettings()">Update Preferences</button>
                     </div>
                 </div>
             </section>
@@ -130,43 +132,214 @@
     </div>
 
     <script>
-        // Simple Routing Logic
+        // --- DATASET & STATE ---
+        const ALL_JOBS = [
+            { id: 1, title: "Senior Frontend Developer", company: "TechScale", location: "San Francisco", mode: "remote", experience: "senior", keywords: ["frontend", "react", "javascript"] },
+            { id: 2, title: "UI Designer", company: "Creative Minds", location: "London", mode: "hybrid", experience: "mid", keywords: ["design", "ui", "ux", "figma"] },
+            { id: 3, title: "Backend Engineer", company: "DataFlow", location: "New York", mode: "onsite", experience: "mid", keywords: ["backend", "python", "django", "sql"] },
+            { id: 4, title: "Junior Web Developer", company: "StartUp Inc", location: "Remote", mode: "remote", experience: "junior", keywords: ["frontend", "html", "css", "javascript"] },
+            { id: 5, title: "Lead Software Architect", company: "Global Systems", location: "Austin", mode: "hybrid", experience: "lead", keywords: ["architecture", "system", "scale"] },
+            { id: 6, title: "Product Manager", company: "Visionary", location: "Seattle", mode: "remote", experience: "senior", keywords: ["product", "management", "strategy"] },
+            { id: 7, title: "Full Stack Developer", company: "WebWorks", location: "Berlin", mode: "hybrid", experience: "mid", keywords: ["frontend", "backend", "node", "react"] },
+            { id: 8, title: "DevOps Engineer", company: "CloudOps", location: "Remote", mode: "remote", experience: "senior", keywords: ["devops", "aws", "docker", "kubernetes"] },
+            { id: 9, title: "Mobile App Developer", company: "Apply", location: "Toronto", mode: "onsite", experience: "junior", keywords: ["mobile", "react native", "ios", "android"] },
+            { id: 10, title: "Data Scientist", company: "InsightCorp", location: "San Francisco", mode: "hybrid", experience: "senior", keywords: ["data", "ml", "python", "ai"] },
+            { id: 11, title: "QA Analyst", company: "CheckPoint", location: "Chicago", mode: "remote", experience: "mid", keywords: ["qa", "testing", "automation"] },
+            { id: 12, title: "Marketing Web Dev", company: "AdVantage", location: "Remote", mode: "remote", experience: "junior", keywords: ["frontend", "wordpress", "cms"] },
+            { id: 13, title: "Security Specialist", company: "SafeNet", location: "Remote", mode: "remote", experience: "senior", keywords: ["security", "cyber", "network"] },
+            { id: 14, title: "React Specialist", company: "FrontFlow", location: "Dublin", mode: "hybrid", experience: "mid", keywords: ["react", "frontend", "hooks"] },
+            { id: 15, title: "Platform Engineer", company: "Foundation", location: "Stockholm", mode: "remote", experience: "lead", keywords: ["platform", "infra", "scaling"] },
+            { id: 16, title: "Growth Engineer", company: "FastTrack", location: "Remote", mode: "remote", experience: "mid", keywords: ["frontend", "analytics", "growth"] },
+            { id: 17, title: "Python Developer", company: "PyLogic", location: "Paris", mode: "onsite", experience: "junior", keywords: ["python", "backend", "scripting"] },
+            { id: 18, title: "Head of Engineering", company: "Unicorn", location: "San Francisco", mode: "hybrid", experience: "lead", keywords: ["management", "leadership", "engineering"] },
+            { id: 19, title: "Database Admin", company: "DataCo", location: "Remote", mode: "remote", experience: "senior", keywords: ["database", "sql", "tuning"] },
+            { id: 20, title: "Accessibility Expert", company: "Inclusion", location: "Remote", mode: "remote", experience: "mid", keywords: ["a11y", "frontend", "html"] }
+        ];
+
+        let state = {
+            settings: JSON.parse(localStorage.getItem('jobTrackerSettings')) || {
+                keywords: "",
+                locations: "",
+                mode: "any",
+                experience: "any"
+            },
+            savedJobIds: JSON.parse(localStorage.getItem('savedJobIds')) || []
+        };
+
+        // --- CORE LOGIC ---
+        function getMatchedJobs() {
+            return ALL_JOBS.filter(job => {
+                // Keyword match
+                const kwMatch = state.settings.keywords === "" ||
+                    state.settings.keywords.toLowerCase().split(',').some(k =>
+                        job.title.toLowerCase().includes(k.trim()) ||
+                        job.keywords.some(jk => jk.toLowerCase().includes(k.trim()))
+                    );
+
+                // Location match
+                const locMatch = state.settings.locations === "" ||
+                    state.settings.locations.toLowerCase().split(',').some(l =>
+                        job.location.toLowerCase().includes(l.trim())
+                    );
+
+                // Mode match
+                const modeMatch = state.settings.mode === "any" || job.mode === state.settings.mode;
+
+                // Experience match
+                const expMatch = state.settings.experience === "any" || job.experience === state.settings.experience;
+
+                return kwMatch && locMatch && modeMatch && expMatch;
+            });
+        }
+
+        // --- UI RENDERING ---
+        function renderJobCard(job) {
+            const isSaved = state.savedJobIds.includes(job.id);
+            return `
+                <div class="job-card ${isSaved ? 'saved' : ''}">
+                    <div>
+                        <div class="job-header">
+                            <span class="job-company">${job.company}</span>
+                            <span class="badge badge-match">98% Match</span>
+                        </div>
+                        <h3 class="job-title">${job.title}</h3>
+                        <div class="job-meta">
+                            <span><i class="fas fa-map-marker-alt"></i> ${job.location}</span>
+                            <span><i class="fas fa-laptop-house"></i> ${job.mode}</span>
+                            <span><i class="fas fa-signal"></i> ${job.experience}</span>
+                        </div>
+                    </div>
+                    <div class="job-actions">
+                        <span class="text-small" style="color: var(--color-text-muted)">Posted 2h ago</span>
+                        <button class="btn-save ${isSaved ? 'active' : ''}" onclick="toggleSave(${job.id})">
+                            <i class="${isSaved ? 'fas' : 'far'} fa-bookmark"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function updateUI() {
+            const matchedJobs = getMatchedJobs();
+
+            // Dashboard
+            const dashboardContainer = document.querySelector('#page-dashboard');
+            if (matchedJobs.length > 0) {
+                dashboardContainer.innerHTML = `
+                    <div class="context-header">
+                        <h1>Recommended for You</h1>
+                        <p class="subtext">Based on your precision preferences.</p>
+                    </div>
+                    <div class="job-grid">${matchedJobs.map(j => renderJobCard(j)).join('')}</div>
+                `;
+            } else {
+                dashboardContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h2>No exact matches.</h2>
+                        <p>Try broadening your preferences in Settings.</p>
+                    </div>
+                `;
+            }
+
+            // Saved Page
+            const savedContainer = document.querySelector('#page-saved');
+            const savedJobs = ALL_JOBS.filter(j => state.savedJobIds.includes(j.id));
+            if (savedJobs.length > 0) {
+                savedContainer.innerHTML = `
+                    <div class="context-header">
+                        <h1>Saved Opportunities</h1>
+                        <p class="subtext">Your curated shortlist of high-potential roles.</p>
+                    </div>
+                    <div class="job-grid">${savedJobs.map(j => renderJobCard(j)).join('')}</div>
+                `;
+            } else {
+                savedContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="far fa-bookmark"></i>
+                        <h2>Your shortlist is empty.</h2>
+                        <p>Save jobs from the dashboard to review them later.</p>
+                    </div>
+                `;
+            }
+
+            // Digest Page (Top 3 Matches)
+            const digestContainer = document.querySelector('#page-digest');
+            const digestJobs = matchedJobs.slice(0, 3);
+            if (digestJobs.length > 0) {
+                digestContainer.innerHTML = `
+                    <div class="context-header">
+                        <h1>Daily Digest</h1>
+                        <p class="subtext">The three most relevant opportunities for ${new Date().toLocaleDateString()}.</p>
+                    </div>
+                    <div class="job-grid">${digestJobs.map(j => renderJobCard(j)).join('')}</div>
+                `;
+            } else {
+                digestContainer.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-envelope-open-text"></i>
+                        <h2>Nothing for today's digest.</h2>
+                        <p>Update your preferences to receive better daily matches.</p>
+                    </div>
+                `;
+            }
+
+            // Settings Sync
+            document.querySelector('#kw-input').value = state.settings.keywords;
+            document.querySelector('#loc-input').value = state.settings.locations;
+            document.querySelector('#mode-select').value = state.settings.mode;
+            document.querySelector('#exp-select').value = state.settings.experience;
+        }
+
+        // --- ACTIONS ---
+        function toggleSave(id) {
+            const index = state.savedJobIds.indexOf(id);
+            if (index > -1) {
+                state.savedJobIds.splice(index, 1);
+            } else {
+                state.savedJobIds.push(id);
+            }
+            localStorage.setItem('savedJobIds', JSON.stringify(state.savedJobIds));
+            updateUI();
+        }
+
+        function saveSettings() {
+            state.settings = {
+                keywords: document.querySelector('#kw-input').value,
+                locations: document.querySelector('#loc-input').value,
+                mode: document.querySelector('#mode-select').value,
+                experience: document.querySelector('#exp-select').value
+            };
+            localStorage.setItem('jobTrackerSettings', JSON.stringify(state.settings));
+            updateUI();
+            alert("Preferences Updated.");
+        }
+
+        // --- ROUTING ---
         function handleRouting() {
             const hash = window.location.hash || '#/';
-            const routes = {
-                '#/': 'home',
-                '#/dashboard': 'dashboard',
-                '#/saved': 'saved',
-                '#/digest': 'digest',
-                '#/settings': 'settings',
-                '#/proof': 'proof'
-            };
+            const activeRoute = (hash === '#/') ? 'home' : hash.replace('#/', '');
 
-            const activeRoute = routes[hash] || 'home';
-
-            // Update Page Visibility
             document.querySelectorAll('.page-section').forEach(section => {
                 section.classList.remove('active');
             });
             const activeSection = document.getElementById(`page-${activeRoute}`);
             if (activeSection) activeSection.classList.add('active');
 
-            // Update Nav Active State
             document.querySelectorAll('.nav-link').forEach(link => {
                 link.classList.remove('active');
-                if (link.getAttribute('href') === hash) {
-                    link.classList.add('active');
-                }
+                if (link.getAttribute('href') === hash) link.classList.add('active');
             });
 
-            // Close mobile menu on navigate
             document.getElementById('nav-links').classList.remove('show');
         }
 
         window.addEventListener('hashchange', handleRouting);
-        window.addEventListener('DOMContentLoaded', handleRouting);
+        window.addEventListener('DOMContentLoaded', () => {
+            handleRouting();
+            updateUI();
+        });
 
-        // Mobile Menu Toggle
         document.getElementById('menu-toggle').addEventListener('click', () => {
             document.getElementById('nav-links').classList.toggle('show');
         });
