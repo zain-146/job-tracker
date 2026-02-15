@@ -284,6 +284,33 @@
                 `;
             }
 
+            // Proof Page Stats
+            const proofContainer = document.querySelector('#page-proof');
+            proofContainer.innerHTML = `
+                <div class="context-header">
+                    <h1>Proof of Work</h1>
+                    <p class="subtext">System integrity report and runtime statistics.</p>
+                </div>
+                <div class="proof-container">
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px;">
+                        <div class="card" style="margin-bottom: 0;">
+                            <h2 style="font-size: 48px; margin: 0;">${matchedJobs.length}</h2>
+                            <p class="subtext" style="font-size: 14px;">Total Matches Found</p>
+                        </div>
+                        <div class="card" style="margin-bottom: 0;">
+                            <h2 style="font-size: 48px; margin: 0;">${state.savedJobIds.length}</h2>
+                            <p class="subtext" style="font-size: 14px;">Opportunities Saved</p>
+                        </div>
+                    </div>
+                    <div style="margin-top: 24px; text-align: left; background: var(--color-bg); padding: 16px; border-radius: 4px; font-family: monospace; font-size: 12px;">
+                        <div>[SYSTEM] Initializing matching engine... OK</div>
+                        <div>[DATA] Fetched ${ALL_JOBS.length} job records.</div>
+                        <div>[STATE] Settings loaded from localStorage.</div>
+                        <div>[ROUTING] Current Hash: ${window.location.hash || '#/'}</div>
+                    </div>
+                </div>
+            `;
+
             // Settings Sync
             document.querySelector('#kw-input').value = state.settings.keywords;
             document.querySelector('#loc-input').value = state.settings.locations;
