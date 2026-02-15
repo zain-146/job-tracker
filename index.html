@@ -472,6 +472,20 @@
                 }
             }
 
+            // Digest Section Visibility
+            const digestBlocked = document.getElementById('digest-blocked');
+            const digestReady = document.getElementById('digest-ready');
+            if (digestBlocked && digestReady) {
+                if (!state.preferences) {
+                    digestBlocked.style.display = 'block';
+                    digestReady.style.display = 'none';
+                } else {
+                    digestBlocked.style.display = 'none';
+                    digestReady.style.display = 'block';
+                    loadDigestIfAvailable();
+                }
+            }
+
             // Dashboard Rendering
             const dashboardContainer = document.querySelector('#job-list');
             if (dashboardContainer) {
@@ -490,11 +504,14 @@
             }
 
             // Saved Page Rendering
-            const savedSection = document.querySelector('#page-saved');
-            const savedJobs = ALL_JOBS.filter(j => state.savedJobIds.includes(j.id));
-            if (savedSection && savedSection.classList.contains('active')) {
+            const savedSectionText = document.querySelector('#page-saved');
+            const savedJobs = ALL_JOBS.filter(j => state.savedJobIds.includes(j.id)).map(j => ({
+                ...j, matchScore: calculateMatchScore(j, state.preferences)
+            }));
+            if (savedSectionText && savedSectionText.classList.contains('active')) {
+                const innerGrid = savedSectionText.querySelector('.job-grid');
                 if (savedJobs.length > 0) {
-                    savedSection.innerHTML = `
+                    savedSectionText.innerHTML = `
                         <div class="context-header">
                             <h1>Saved Opportunities</h1>
                             <p class="subtext">Your curated shortlist of high-potential roles.</p>
@@ -502,7 +519,7 @@
                         <div class="job-grid">${savedJobs.map(j => renderJobCard(j)).join('')}</div>
                     `;
                 } else {
-                    savedSection.innerHTML = `
+                    savedSectionText.innerHTML = `
                          <div class="context-header">
                             <h1>Saved Opportunities</h1>
                             <p class="subtext">Your curated shortlist of high-potential roles.</p>
@@ -518,24 +535,15 @@
 
             // Digest Page (Top 3 Matches)
             const digestContainer = document.querySelector('#page-digest');
-            const digestJobs = filteredJobs.slice(0, 3);
+            // The digest rendering is now handled by loadDigestIfAvailable and renderDigest
+            // This block will only ensure the digest page is active and then load the digest
             if (digestContainer && digestContainer.classList.contains('active')) {
-                if (digestJobs.length > 0) {
-                    digestContainer.innerHTML = `
-                        <div class="context-header">
-                            <h1>Daily Digest</h1>
-                            <p class="subtext">The three most relevant opportunities for ${new Date().toLocaleDateString()}.</p>
-                        </div>
-                        <div class="job-grid">${digestJobs.map(j => renderJobCard(j)).join('')}</div>
-                    `;
-                } else {
-                    digestContainer.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-envelope-open-text"></i>
-                            <h2>Nothing for today's digest.</h2>
-                            <p>Update your preferences to receive better daily matches.</p>
-                        </div>
-                    `;
+                // The actual content rendering is done by loadDigestIfAvailable()
+                // which is called in the "Digest Section Visibility" block above.
+                // We might want to trigger generateDigest if no digest is found for today.
+                const today = new Date().toISOString().split('T')[0];
+                if (!localStorage.getItem(`jobTrackerDigest_${today}`)) {
+                    generateDigest();
                 }
             }
 
@@ -586,6 +594,133 @@
                 document.querySelector('#exp-select').value = state.settings.experience;
                 */
             }
+        }
+
+        // --- DIGEST ENGINE ---
+        function generateDigest() {
+            if (!state.preferences) return;
+
+            const fullList = ALL_JOBS.map(job => ({
+                ...job,
+                matchScore: calculateMatchScore(job, state.preferences)
+            }));
+
+            // Select Top 10: Match Score Desc, then PostedDaysAgo Asc
+            const digestJobs = fullList
+                .filter(job => job.matchScore > 0)
+                .sort((a, b) => (b.matchScore - a.matchScore) || (a.postedDaysAgo - b.postedDaysAgo))
+                .slice(0, 10);
+
+            const container = document.getElementById('digest-container');
+            if (!container) return; // Ensure container exists before trying to update it
+
+            if (digestJobs.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search-minus"></i>
+                        <h2>No matching roles today.</h2>
+                        <p>Check again tomorrow or broaden your preferences.</p>
+                    </div>
+                `;
+                document.getElementById('copy-digest-btn').style.display = 'none';
+                document.getElementById('email-digest-btn').style.display = 'none';
+                return;
+            }
+
+            const today = new Date().toISOString().split('T')[0];
+            localStorage.setItem(`jobTrackerDigest_${today}`, JSON.stringify(digestJobs));
+            renderDigest(digestJobs);
+        }
+
+        function loadDigestIfAvailable() {
+            const today = new Date().toISOString().split('T')[0];
+            const stored = localStorage.getItem(`jobTrackerDigest_${today}`);
+            if (stored) {
+                renderDigest(JSON.parse(stored));
+            } else {
+                // If no digest is stored for today, generate one
+                generateDigest();
+            }
+        }
+
+        function renderDigest(jobs) {
+            const container = document.getElementById('digest-container');
+            if (!container) return; // Ensure container exists
+            const dateStr = new Date().toLocaleDateString('en-IN', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            document.getElementById('copy-digest-btn').style.display = 'inline-block';
+            document.getElementById('email-digest-btn').style.display = 'inline-block';
+
+            container.innerHTML = `
+                <div class="digest-outer">
+                    <div class="digest-inner" id="digest-email-frame">
+                        <div class="digest-header">
+                            <div style="font-weight: 800; color: var(--color-accent); letter-spacing: 2px; text-transform: uppercase; font-size: 10px; margin-bottom: 8px;">Job Notification Tracker</div>
+                            <h2 style="margin: 0; font-family: var(--font-display);">Top 10 Jobs For You</h2>
+                            <div style="color: var(--color-text-muted); font-size: 14px; margin-top: 4px;">9AM Digest &bull; ${dateStr}</div>
+                        </div>
+                        
+                        <div class="digest-body">
+                            ${jobs.map(job => `
+                                <div class="digest-job-item">
+                                    <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                                        <div>
+                                            <div class="digest-job-title">${job.title}</div>
+                                            <div class="digest-job-meta">${job.company} &bull; ${job.location} &bull; ${job.experience}</div>
+                                        </div>
+                                        <div class="badge-score ${getScoreBadgeClass(job.matchScore || 0)}">${job.matchScore || 0}% Match</div>
+                                    </div>
+                                    <a href="${job.applyUrl}" target="_blank" class="btn btn-primary" style="display: inline-block; padding: 6px 12px; font-size: 11px; margin-top: 8px; text-decoration: none;">View & Apply</a>
+                                </div>
+                            `).join('')}
+                        </div>
+
+                        <div class="digest-footer">
+                            <p>This digest was generated based on your precision preferences for ${state.preferences.roleKeywords}.</p>
+                            <div style="margin-top: 16px;">
+                                <i class="fas fa-paper-plane" style="color: var(--color-accent); opacity: 0.5;"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- SHARING TOOLS ---
+        function copyDigest() {
+            const today = new Date().toISOString().split('T')[0];
+            const stored = localStorage.getItem(`jobTrackerDigest_${today}`);
+            if (!stored) return;
+            const jobs = JSON.parse(stored);
+
+            let text = `Top 10 Jobs For You - 9AM Digest - ${new Date().toLocaleDateString()}\n\n`;
+            jobs.forEach((j, i) => {
+                text += `${i + 1}. ${j.title} @ ${j.company}\n   Score: ${j.matchScore}% | Location: ${j.location}\n   Apply: ${j.applyUrl}\n\n`;
+            });
+            text += "Generated by KodNest Job Tracker.";
+
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copy-digest-btn');
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-check"></i> Copied';
+                setTimeout(() => btn.innerHTML = orig, 2000);
+            });
+        }
+
+        function emailDigest() {
+            const today = new Date().toISOString().split('T')[0];
+            const stored = localStorage.getItem(`jobTrackerDigest_${today}`);
+            if (!stored) return;
+            const jobs = JSON.parse(stored);
+
+            const subject = encodeURIComponent("My 9AM Job Digest");
+            let body = `Here are today's top job matches based on my preferences:\n\n`;
+            jobs.forEach((j, i) => {
+                body += `${i + 1}. ${j.title} at ${j.company} (${j.matchScore}% Match)\nView: ${j.applyUrl}\n\n`;
+            });
+            body += "\nGenerated by KodNest Job Tracker.";
+
+            window.location.href = `mailto:?subject=${subject}&body=${encodeURIComponent(body)}`;
         }
 
         // --- ACTIONS ---
