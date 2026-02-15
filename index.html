@@ -13,93 +13,119 @@
 
     <!-- TOP BAR -->
     <header class="top-bar">
-        <div class="brand-name">KodNest Premium Build System</div>
-        <div class="progress-indicator">Step 1 / 5</div>
-        <div class="status-badge">In Progress</div>
+        <div class="brand-name" style="font-family: var(--font-serif); font-weight: 700; font-size: 1.2rem;">Job
+            Notification Tracker</div>
+
+        <button class="menu-toggle" id="menu-toggle">
+            <i class="fas fa-bars"></i>
+        </button>
+
+        <nav class="nav-links" id="nav-links">
+            <li><a href="#/" class="nav-link" data-route="home">Home</a></li>
+            <li><a href="#/dashboard" class="nav-link" data-route="dashboard">Dashboard</a></li>
+            <li><a href="#/saved" class="nav-link" data-route="saved">Saved</a></li>
+            <li><a href="#/digest" class="nav-link" data-route="digest">Digest</a></li>
+            <li><a href="#/settings" class="nav-link" data-route="settings">Settings</a></li>
+            <li><a href="#/proof" class="nav-link" data-route="proof">Proof</a></li>
+        </nav>
     </header>
 
     <div class="layout-container">
-        <!-- PRIMARY WORKSPACE (70%) -->
-        <main class="workspace">
-            <!-- CONTEXT HEADER -->
-            <div class="context-header">
-                <h1>Establish Foundation</h1>
-                <p class="subtext">A coherent start ensures technical and design longevity. Begin here.</p>
-            </div>
+        <main class="workspace" id="app-container">
 
-            <div class="card">
-                <label class="input-label">Project Identity</label>
-                <input type="text" class="form-control" placeholder="Project Name">
-                <p class="text-small" style="margin-top: 8px;">The public-facing name of your application.</p>
-            </div>
-
-            <div class="card">
-                <label class="input-label">Technical Scope</label>
-                <input type="text" class="form-control" value="SaaS Platform" readonly>
-                <div style="display: flex; gap: 16px; margin-top: 16px;">
-                    <button class="btn btn-primary">Save Changes</button>
-                    <button class="btn btn-secondary">Discard</button>
+            <!-- HOME PAGE -->
+            <section id="page-home" class="page-section active">
+                <div class="context-header">
+                    <h1>Job Notification Tracker</h1>
+                    <p class="subtext">This section will be built in the next step.</p>
                 </div>
-            </div>
+            </section>
 
-            <div class="card" style="border-left: 4px solid var(--color-warning);">
-                <label class="input-label">Warning Observation</label>
-                <p>Ensure the domain is not already registered before proceeding with the build.</p>
-                <p class="error-text">Domain validation failed. Please check the format.</p>
-            </div>
+            <!-- DASHBOARD PAGE -->
+            <section id="page-dashboard" class="page-section">
+                <div class="context-header">
+                    <h1>Dashboard</h1>
+                    <p class="subtext">This section will be built in the next step.</p>
+                </div>
+            </section>
+
+            <!-- SAVED PAGE -->
+            <section id="page-saved" class="page-section">
+                <div class="context-header">
+                    <h1>Saved</h1>
+                    <p class="subtext">This section will be built in the next step.</p>
+                </div>
+            </section>
+
+            <!-- DIGEST PAGE -->
+            <section id="page-digest" class="page-section">
+                <div class="context-header">
+                    <h1>Digest</h1>
+                    <p class="subtext">This section will be built in the next step.</p>
+                </div>
+            </section>
+
+            <!-- SETTINGS PAGE -->
+            <section id="page-settings" class="page-section">
+                <div class="context-header">
+                    <h1>Settings</h1>
+                    <p class="subtext">This section will be built in the next step.</p>
+                </div>
+            </section>
+
+            <!-- PROOF PAGE -->
+            <section id="page-proof" class="page-section">
+                <div class="context-header">
+                    <h1>Proof</h1>
+                    <p class="subtext">This section will be built in the next step.</p>
+                </div>
+            </section>
+
         </main>
-
-        <!-- SECONDARY PANEL (30%) -->
-        <aside class="secondary-panel">
-            <div>
-                <h3>Step Explanation</h3>
-                <p>This phase defines the core pillars. Without clear identity and scope, visual drift is inevitable.</p>
-            </div>
-
-            <div class="card">
-                <label class="input-label">AI System Prompt</label>
-                <textarea class="form-control" rows="6" readonly style="font-family: monospace; font-size: 13px;">CREATE SYSTEM: "KodNest Premium Build System"
-STRICT DESIGN: CALM, INTENTIONAL, COHERENT
-COLORS: #F7F6F3, #111111, #8B0000</textarea>
-                <button class="btn btn-secondary" style="width: 100%; margin-top: 16px;">
-                    <i class="fas fa-copy" style="margin-right: 8px;"></i> Copy Prompt
-                </button>
-            </div>
-
-            <div style="display: flex; flex-direction: column; gap: 16px; margin-top: auto;">
-                <button class="btn btn-primary">Build in Lovable</button>
-                <button class="btn btn-secondary">Add Screenshot</button>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                    <button class="btn btn-secondary">It Worked</button>
-                    <button class="btn btn-secondary">Error</button>
-                </div>
-            </div>
-        </aside>
     </div>
 
-    <!-- PROOF FOOTER -->
-    <footer class="proof-footer">
-        <div class="checklist-item">
-            <input type="checkbox" id="ui-built">
-            <label for="ui-built">UI Built</label>
-            <input type="text" class="form-control" placeholder="UI URL" style="width: 120px; padding: 4px 8px; font-size: 12px;">
-        </div>
-        <div class="checklist-item">
-            <input type="checkbox" id="logic-working">
-            <label for="logic-working">Logic Working</label>
-            <input type="text" class="form-control" placeholder="Function Name" style="width: 120px; padding: 4px 8px; font-size: 12px;">
-        </div>
-        <div class="checklist-item">
-            <input type="checkbox" id="test-passed">
-            <label for="test-passed">Test Passed</label>
-            <input type="text" class="form-control" placeholder="Test Link" style="width: 120px; padding: 4px 8px; font-size: 12px;">
-        </div>
-        <div class="checklist-item">
-            <input type="checkbox" id="deployed">
-            <label for="deployed">Deployed</label>
-            <input type="text" class="form-control" placeholder="Final URL" style="width: 120px; padding: 4px 8px; font-size: 12px;">
-        </div>
-    </footer>
+    <script>
+        // Simple Routing Logic
+        function handleRouting() {
+            const hash = window.location.hash || '#/';
+            const routes = {
+                '#/': 'home',
+                '#/dashboard': 'dashboard',
+                '#/saved': 'saved',
+                '#/digest': 'digest',
+                '#/settings': 'settings',
+                '#/proof': 'proof'
+            };
+
+            const activeRoute = routes[hash] || 'home';
+
+            // Update Page Visibility
+            document.querySelectorAll('.page-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            const activeSection = document.getElementById(`page-${activeRoute}`);
+            if (activeSection) activeSection.classList.add('active');
+
+            // Update Nav Active State
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === hash) {
+                    link.classList.add('active');
+                }
+            });
+
+            // Close mobile menu on navigate
+            document.getElementById('nav-links').classList.remove('show');
+        }
+
+        window.addEventListener('hashchange', handleRouting);
+        window.addEventListener('DOMContentLoaded', handleRouting);
+
+        // Mobile Menu Toggle
+        document.getElementById('menu-toggle').addEventListener('click', () => {
+            document.getElementById('nav-links').classList.toggle('show');
+        });
+    </script>
 
 </body>
 
