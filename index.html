@@ -33,51 +33,96 @@
     <div class="layout-container">
         <main class="workspace" id="app-container">
 
-            <!-- HOME PAGE -->
+            <!-- HOME PAGE (Landing) -->
             <section id="page-home" class="page-section active">
-                <div class="context-header">
-                    <h1>Job Notification Tracker</h1>
-                    <p class="subtext">This section will be built in the next step.</p>
+                <div class="hero">
+                    <h1>Stop Missing The Right Jobs.</h1>
+                    <p class="subtext">Precision-matched job discovery delivered daily at 9AM.</p>
+                    <a href="#/settings" class="btn btn-primary" style="padding: 16px 40px; font-size: 18px;">Start
+                        Tracking</a>
                 </div>
             </section>
 
             <!-- DASHBOARD PAGE -->
             <section id="page-dashboard" class="page-section">
-                <div class="context-header">
-                    <h1>Dashboard</h1>
-                    <p class="subtext">This section will be built in the next step.</p>
+                <div class="empty-state">
+                    <i class="fas fa-briefcase"></i>
+                    <h2>No jobs yet.</h2>
+                    <p>In the next step, you will load a realistic dataset.</p>
                 </div>
             </section>
 
             <!-- SAVED PAGE -->
             <section id="page-saved" class="page-section">
-                <div class="context-header">
-                    <h1>Saved</h1>
-                    <p class="subtext">This section will be built in the next step.</p>
+                <div class="empty-state">
+                    <i class="fas fa-bookmark"></i>
+                    <h2>Save for later.</h2>
+                    <p>Jobs you mark as saved will appear here for careful review.</p>
                 </div>
             </section>
 
             <!-- DIGEST PAGE -->
             <section id="page-digest" class="page-section">
-                <div class="context-header">
-                    <h1>Digest</h1>
-                    <p class="subtext">This section will be built in the next step.</p>
+                <div class="empty-state">
+                    <i class="fas fa-envelope-open-text"></i>
+                    <h2>Your Daily Digest.</h2>
+                    <p>Every morning at 9AM, we'll curate the best matches for you here.</p>
                 </div>
             </section>
 
             <!-- SETTINGS PAGE -->
             <section id="page-settings" class="page-section">
                 <div class="context-header">
-                    <h1>Settings</h1>
-                    <p class="subtext">This section will be built in the next step.</p>
+                    <h1>Job Preferences</h1>
+                    <p class="subtext">Define your search parameters with precision.</p>
+                </div>
+
+                <div class="card">
+                    <div class="settings-grid">
+                        <div class="form-group">
+                            <label class="input-label">Role Keywords</label>
+                            <input type="text" class="form-control"
+                                placeholder="e.g. Senior Frontend Developer, UI Designer">
+                        </div>
+                        <div class="form-group">
+                            <label class="input-label">Preferred Locations</label>
+                            <input type="text" class="form-control" placeholder="e.g. Remote, San Francisco, London">
+                        </div>
+                        <div class="form-group">
+                            <label class="input-label">Mode</label>
+                            <select class="form-control">
+                                <option value="remote">Remote Only</option>
+                                <option value="hybrid">Hybrid</option>
+                                <option value="onsite">Onsite</option>
+                                <option value="any">Any Mode</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="input-label">Experience Level</label>
+                            <select class="form-control">
+                                <option value="junior">Entry / Junior</option>
+                                <option value="mid">Mid-Level</option>
+                                <option value="senior">Senior</option>
+                                <option value="lead">Lead / Management</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="margin-top: var(--space-3);">
+                        <button class="btn btn-primary">Update Preferences</button>
+                    </div>
                 </div>
             </section>
 
             <!-- PROOF PAGE -->
             <section id="page-proof" class="page-section">
                 <div class="context-header">
-                    <h1>Proof</h1>
-                    <p class="subtext">This section will be built in the next step.</p>
+                    <h1>Proof of Work</h1>
+                    <p class="subtext">A collection of artifacts demonstrating system integrity.</p>
+                </div>
+                <div class="proof-container">
+                    <i class="fas fa-file-shield"
+                        style="font-size: 32px; color: var(--color-accent); margin-bottom: 16px;"></i>
+                    <p>Artifact collection area. This section will store verification data.</p>
                 </div>
             </section>
 
